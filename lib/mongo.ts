@@ -3,15 +3,13 @@ import { IDict } from "./idict.ts";
 import { IUser } from "./iuser.ts";
 import { IWordList } from "./wordlist.ts";
 
-const client = new MongoClient(Deno.env.get('MONGO_URI')!, {
+export const client = new MongoClient(Deno.env.get('MONGO_URI')!, {
     serverApi: {
         version: ServerApiVersion.v1,
         strict: true,
         deprecationErrors: true
     }
 });
-
-await client.connect();
 
 export const taskDB = client.db('task');
 export const collectionDict = client.db('dict').collection<IDict>('dict');

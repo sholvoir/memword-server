@@ -1,3 +1,4 @@
+import { client } from './lib/mongo.ts';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import jwt from './mid/jwt.ts';
@@ -18,24 +19,30 @@ import auth_wordlist from "./auth/wordlist.ts";
 import admin_dict from "./admin/dict.ts";
 import admin_wordlist from "./admin/wordlist.ts";
 
-const app = new Hono();
-app.use(cors());
+const run = async () => {
+    const app = new Hono();
+    app.use(cors());
 
-app.route('/signup', signup);
-app.route('/otp', otp);
-app.route('/login', login);
-app.route('/sound', sound);
-app.route('/dict', pub_dict);
-app.route('/wordlist', pub_wordlist);
+    app.route('/signup', signup);
+    app.route('/otp', otp);
+    app.route('/login', login);
+    app.route('/sound', sound);
+    app.route('/dict', pub_dict);
+    app.route('/wordlist', pub_wordlist);
 
-app.use('/api/*', jwt);
-app.route('/api/task', task);
-app.route('/api/issue', issue);
-app.route('/api/setting', setting);
-app.route('/api/wordlist', auth_wordlist);
+    app.use('/api/*', jwt);
+    app.route('/api/task', task);
+    app.route('/api/issue', issue);
+    app.route('/api/setting', setting);
+    app.route('/api/wordlist', auth_wordlist);
 
-app.use('/admin/*', jwt, admin);
-app.route('/admin/dict', admin_dict);
-app.route('/admin/wordlist', admin_wordlist);
+    app.use('/admin/*', jwt, admin);
+    app.route('/admin/dict', admin_dict);
+    app.route('/admin/wordlist', admin_wordlist);
 
-Deno.serve(app.fetch)
+    await client.connect();
+
+    Deno.serve(app.fetch);
+}
+
+if (import.meta.main) run();
