@@ -4,11 +4,11 @@ import { IUser } from "./iuser.ts";
 import { IWordList } from "./wordlist.ts";
 
 const client = new MongoClient(Deno.env.get('MONGO_URI')!, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true
-  }
+    serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true
+    }
 });
 
 await client.connect();

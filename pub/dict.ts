@@ -1,9 +1,9 @@
 import { Hono } from "hono";
 import { emptyResponse, STATUS_CODE } from '@sholvoir/generic/http';
+import { collectionDict } from "../lib/mongo.ts";
 import { IDict } from "../lib/idict.ts";
 import fill from '../lib/fill-dict.ts';
 import * as vocabulary from '../lib/vocabulary.ts';
-import { collectionDict } from "../lib/mongo.ts";
 
 const app = new Hono();
 
