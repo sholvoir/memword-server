@@ -8,25 +8,18 @@ import { collectionDict } from "../lib/mongo.ts";
 const app = new Hono();
 
 app.get(async (c) => {
-    try {
-        const wordN = c.req.query('q');
-        if (!wordN) return emptyResponse(STATUS_CODE.BadRequest);
-        const word = wordN.split('_')[0];
-        if (!word) return emptyResponse(STATUS_CODE.BadRequest);
-        const dict = await collectionDict.findOne({word: wordN});
-        if (dict) return c.json(dict)
-        const ndict: IDict = {word};
-        await fill(ndict);
-        const data = await vocabulary.get();
-        if (data.has(wordN)) {
-            ndict.word = wordN;
-            await collectionDict.insertOne(ndict)
-        }
-        return c.json(ndict)
-    } catch (e) {
-        console.error(e);
-        return emptyResponse(STATUS_CODE.InternalServerError);
+    const word = c.req.query('q');
+    if (!word) return emptyResponse(STATUS_CODE.BadRequest);
+    const dict = await collectionDict.findOne({ word });
+    if (dict) return c.json(dict)
+    const ndict: IDict = { word };
+    await fill(ndict);
+    const vocab = await vocabulary.get();
+    if (vocab.has(word)) {
+        ndict.word = word;
+        await collectionDict.insertOne(ndict)
     }
+    return c.json(ndict)
 });
 
 export default app;

@@ -14,3 +14,4 @@ node_modules/
 data/
 /server.ts
 /static/service-worker.js
+*.http

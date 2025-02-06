@@ -11,7 +11,7 @@
         "mongodb": "npm:mongodb@^6.13.0"
     },
     "tasks": {
-        "start": "deno run -A --env main.ts"
+        "start": "deno run -A --env --watch=lib/,auth/,pub/,mid/,admin/ main.ts"
     },
     "compilerOptions": {
         "jsx": "precompile",

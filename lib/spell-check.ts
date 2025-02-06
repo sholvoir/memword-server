@@ -20,17 +20,17 @@ const getIgnore = async () => {
 }
 
 const wlid = 'system/spell-check';
-const data = new Set<string>();
-let version: string | undefined;
+const scSet = new Set<string>();
+let scVersion: string | undefined;
 let added = false;
-let functionIndex = 0;
+let funcIndex = 0;
 
 const getData = async () => {
-    version = (await collectionWordList.findOne({ wlid: wlid }))?.version ?? '0.0.1';
-    if (!version) await collectionWordList.insertOne({ wlid: wlid, version: (version = '0.0.1') });
-    const res = await fetch(`${B2_BASE_URL}/${wlid}-${version}.txt`);
+    scVersion = (await collectionWordList.findOne({ wlid: wlid }))?.version ?? '0.0.1';
+    if (!scVersion) await collectionWordList.insertOne({ wlid: wlid, version: (scVersion = '0.0.1') });
+    const res = await fetch(`${B2_BASE_URL}/${wlid}-${scVersion}.txt`);
     if (!res.ok) throw new Error('Network Error!');
-    for (let line of (await res.text()).split('\n')) if (line = line.trim()) data.add(line);
+    for (let line of (await res.text()).split('\n')) if (line = line.trim()) scSet.add(line);
 }
 
 // const spliteNum = /^([A-Za-zèé /&''.-]+)(\d*)/;
@@ -61,19 +61,19 @@ const scfuncs = [
         [[/<(p|h1) class="(?:elMfuCTjKMwxtSEEnUsi)?">(.*?)<\/\1>/g, 2]])
 ];
 
-export const spellCheck = async (lines: Iterable<string>): Promise<[Set<string>, Record<string, Array<string>>]> => {
+export const check = async (lines: Iterable<string>): Promise<[Set<string>, Record<string, Array<string>>]> => {
     const words = new Set<string>();
     const replaces: Record<string, Array<string>> = {};
     await getIgnore();
-    if (!data.size) await getData();
+    if (!scSet.size) await getData();
     A: for (let word of lines) if (word = word.trim()) {
         if (ignoreSet.has(word)) { words.add(word); continue; }
-        if (data.has(word)) { words.add(word); continue; }
+        if (scSet.has(word)) { words.add(word); continue; }
         const replace = new Set<string>();
         for (let i = 0; i < scfuncs.length; i++) {
-            const funIndex = functionIndex++ % scfuncs.length;
+            const funIndex = funcIndex++ % scfuncs.length;
             const entries = await scfuncs[funIndex](word);
-            if (entries.includes(word)) { data.add(word); added = true; words.add(word); continue A; }
+            if (entries.includes(word)) { scSet.add(word); added = true; words.add(word); continue A; }
             else entries.forEach(entry => replace.add(entry));
         }
         replaces[word] = Array.from(replace);
@@ -84,11 +84,11 @@ export const spellCheck = async (lines: Iterable<string>): Promise<[Set<string>,
 export const update = async () => {
     if (added) {
         added = false;
-        const newVersion = versionpp(version!);
+        const newVersion = versionpp(scVersion!);
         await minio.putObject(B2_BUCKET, `${wlid}-${newVersion}.txt`,
-            Array.from(data).sort().join('\n'), 'text/plain');
+            Array.from(scSet).sort().join('\n'), 'text/plain');
         await collectionWordList.updateOne({ wlid }, { $set: { version: newVersion } });
-        await minio.removeObject(B2_BUCKET, `${wlid}-${version}.txt`);
-        version = newVersion;
+        await minio.removeObject(B2_BUCKET, `${wlid}-${scVersion}.txt`);
+        scVersion = newVersion;
     }
 }

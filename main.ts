@@ -16,6 +16,7 @@ import setting from './auth/setting.ts';
 import auth_wordlist from "./auth/wordlist.ts";
 
 import admin_dict from "./admin/dict.ts";
+import admin_wordlist from "./admin/wordlist.ts";
 
 const app = new Hono();
 app.use(cors());
@@ -35,5 +36,6 @@ app.route('/api/wordlist', auth_wordlist);
 
 app.use('/admin/*', jwt, admin);
 app.route('/admin/dict', admin_dict);
+app.route('/admin/wordlist', admin_wordlist);
 
 Deno.serve(app.fetch)

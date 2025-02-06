@@ -10,16 +10,16 @@ import { jwtEnv } from "../lib/env.ts";
 
 const app = new Hono<jwtEnv>();
 
-app.post('/api/auth/wordlist', async (c) => {
+app.post(async (c) => {
     const username = c.get('username');
     const wlname = c.req.query('name');
     if (!wlname) return emptyResponse(STATUS_CODE.BadRequest);
     const wlid = `${username}/${wlname}`;
     const text = await c.req.text();
     if (!text.length) return emptyResponse(STATUS_CODE.BadRequest);
-    const [words, replaces] = await spellCheck.spellCheck(text.split('\n'));
+    const [words, replaces] = await spellCheck.check(text.split('\n'));
     if (Object.keys(replaces).length) {
-        console.log(`API '/wordlist' POST ${username}/${wlname}, spell check failed.`);
+        console.log(`API 'wordlist' POST ${username}/${wlname}, spell check failed.`);
         return c.json(replaces, STATUS_CODE.NotAcceptable);
     }
     const wordlist = await collectionWordList.findOne({ wlid });
