@@ -1,0 +1,1 @@
+export const baseUrl = 'https://translate.google.com.vn/translate_tts?ie=UTF-8&tl=en&client=tw-ob';//&q=ir

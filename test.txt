@@ -1,0 +1,2 @@
+#GET http://localhost:8000/login?code=607619&phone=%2B19795875378 HTTP/1.1
+#GET http://localhost:8000/signup?name=hua&phone=%2B19795875378 HTTP/1.1

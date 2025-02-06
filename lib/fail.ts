@@ -1,0 +1,1 @@
+export const fail = (reason: string) => ({ reason });

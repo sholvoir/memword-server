@@ -1,2 +1,3 @@
-# memword-server
-Memwrod Server
+```
+deno task start
+```
