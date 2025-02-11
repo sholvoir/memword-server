@@ -8,12 +8,10 @@ const m: MiddlewareHandler<jwtEnv> = async (ctx, next) => {
     const err = new HTTPException(STATUS_CODE.Unauthorized);
     const token = getToken(ctx.req.raw);
     if (!token) throw err;
-    try {
-        const payload = await jwt.verifyToken(token);
-        if (!payload) throw err;
-        if (!payload.aud) throw err;
-        ctx.set('username', payload.aud as string);
-    } catch { throw err; }
+    const payload = await jwt.verifyToken(token);
+    if (!payload) throw err;
+    if (!payload.aud) throw err;
+    ctx.set('username', payload.aud as string);
     await next();
 }
 

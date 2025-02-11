@@ -23,18 +23,13 @@ app.post(async (c) => {
         return c.json(replaces, STATUS_CODE.NotAcceptable);
     }
     const wordlist = await collectionWordList.findOne({ wlid });
+    const newVersion = wordlist ? versionpp(wordlist.version) : '0.0.1';
+    await minio.putObject(B2_BUCKET, `${wlid}-${newVersion}.txt`,
+        Array.from(words).sort().join('\n'), 'text/plain');
     if (wordlist) {
-        const newVersion = versionpp(wordlist.version);
-        await minio.putObject(B2_BUCKET, `${wlid}-${newVersion}.txt`,
-            Array.from(words).sort().join('\n'), 'text/plain');
-        await minio.removeObject(B2_BUCKET, `${wlid}-${wordlist.version}.txt`);
         await collectionWordList.updateOne({ wlid }, { $set: { version: newVersion } });
-    } else {
-        const newVersion = '0.0.1';
-        await minio.putObject(B2_BUCKET, `${wlid}-${newVersion}.txt`,
-            Array.from(words).sort().join('\n'), 'text/plain');
-        await collectionWordList.insertOne({ wlid, version: newVersion });
-    }
+        await minio.removeObject(B2_BUCKET, `${wlid}-${wordlist.version}.txt`);
+    } else await collectionWordList.insertOne({ wlid, version: newVersion });
     vocabulary.add(words);
     console.log(`API '/wordlist' POST ${username}/${wlname}, successed.`);
     return emptyResponse();

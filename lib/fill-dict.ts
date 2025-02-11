@@ -1,19 +1,20 @@
-import { IDict } from "./idict.ts";
+import { ICard } from "./idict.ts";
 import dictionary from "./dictionary.ts";
 import oxford from "./oxford.ts";
 import websterApi from "./webster-api.ts";
 import websterWeb from "./webster-web.ts";
 import youdao from "./youdao.ts";
 
-export default async (dict: IDict) => {
+export default async (word: string, card: ICard) => {
     // Webster-api
-    if (!dict.sound) await websterApi(dict);
+    if (!card.sound) await websterApi(word, card);
     // Webster-web
-    if (!dict.sound) await websterWeb(dict);
+    if (!card.sound) await websterWeb(word, card);
     // Oxford
-    if (!dict.phonetic || !dict.sound) await oxford(dict);
+    if (!card.phonetic || !card.sound) await oxford(word, card);
     // Youdao
-    if (!dict.trans || !dict.phonetic || !dict.sound) await youdao(dict);
+    if (!card.trans || !card.phonetic || !card.sound) await youdao(word, card);
     // Google Dictionary
-    if (!dict.sound || !dict.phonetic || !dict.def) await dictionary(dict);
+    if (!card.sound || !card.phonetic || !card.def) await dictionary(word, card);
+    return card;
 }

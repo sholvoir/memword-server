@@ -9,9 +9,8 @@ import { jwtEnv } from "../lib/env.ts";
 const app = new Hono<jwtEnv>();
 
 app.post(async (c) => {
-    const rawlastgt = c.req.query('lastgt')!;
-    if (!rawlastgt) return emptyResponse(STATUS_CODE.BadRequest);
-    const lastgt = +rawlastgt;
+    const lastgt = +(c.req.query('lastgt')!);
+    if (isNaN(lastgt)) return emptyResponse(STATUS_CODE.BadRequest);
     const username = c.get('username');
     const clientTasks: Array<ITask> = await c.req.json();
     const serverTasks: ITask[] = [];
@@ -20,10 +19,10 @@ app.post(async (c) => {
     for await (const task of cursor) serverTasks.push(task as any);
     for (const ctask of clientTasks) {
         const filter = { word: ctask.word };
+        delete ctask._id;
         const otask = (await collectionTask.findOne(filter)) as ITask | null;
-        if (!otask) {
-            await collectionTask.insertOne(ctask);
-        } else if (ctask.last > otask.last) {
+        if (!otask) await collectionTask.insertOne(ctask as any);
+        else if (ctask.last > otask.last) {
             const $set = { last: new Int32(ctask.last), next: new Int32(ctask.next), level: new Int32(ctask.level) };
             await collectionTask.updateOne(filter, { $set });
         }

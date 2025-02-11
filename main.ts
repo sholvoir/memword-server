@@ -1,12 +1,12 @@
-import { client } from './lib/mongo.ts';
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
+import { serveStatic } from 'hono/deno';
 import jwt from './mid/jwt.ts';
 import admin from './mid/admin.ts';
 
 import signup from "./pub/signup.ts";
+import signin from "./pub/signin.ts";
 import otp from "./pub/otp.ts";
-import login from "./pub/login.ts";
 import sound from "./pub/sound.ts";
 import pub_dict from "./pub/dict.ts";
 import pub_wordlist from "./pub/wordlist.ts";
@@ -19,13 +19,16 @@ import auth_wordlist from "./auth/wordlist.ts";
 import admin_dict from "./admin/dict.ts";
 import admin_wordlist from "./admin/wordlist.ts";
 
+import { client } from './lib/mongo.ts';
+
 const run = async () => {
     const app = new Hono();
     app.use(cors());
+    app.use(serveStatic({root: './static/'}))
 
     app.route('/signup', signup);
+    app.route('/signin', signin);
     app.route('/otp', otp);
-    app.route('/login', login);
     app.route('/sound', sound);
     app.route('/dict', pub_dict);
     app.route('/wordlist', pub_wordlist);

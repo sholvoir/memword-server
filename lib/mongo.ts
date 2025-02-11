@@ -1,7 +1,7 @@
 import { MongoClient, ServerApiVersion } from 'npm:mongodb@^6.12.0';
 import { IDict } from "./idict.ts";
 import { IUser } from "./iuser.ts";
-import { IWordList } from "./wordlist.ts";
+import { IWordList } from "./iwordlist.ts";
 
 export const client = new MongoClient(Deno.env.get('MONGO_URI')!, {
     serverApi: {

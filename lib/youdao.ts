@@ -1,4 +1,4 @@
-import { IDict } from "./idict.ts";
+import { ICard } from "./idict.ts";
 
 const baseUrl = 'https://dict.youdao.com/jsonapi';
 const youdaoAudio = 'https://dict.youdao.com/dictvoice?audio='//complete&type=2
@@ -19,34 +19,33 @@ const abbr = (partofspeech?: string) => {
     return p;
 }
 
-const fillDict = async (dict: IDict): Promise<void> => {
-    const en = dict.word;
+const fillDict = async (en: string, card: ICard): Promise<ICard> => {
     const resp = await fetch(`${baseUrl}?q=${encodeURIComponent(en)}`);
-    if (!resp.ok) return;
+    if (!resp.ok) return card;
     const root = await resp.json();
     const nameRegex = new RegExp(`【名】|（人名）|（${en}）人名`, 'i');
     // Collins Primary Dict
-    if ((!dict.phonetic || !dict.sound) && root.collins_primary) {
+    if ((!card.phonetic || !card.sound) && root.collins_primary) {
         const cp = root.collins_primary;
         if (cp.words?.word === en && cp.gramcat?.length) {
             for (const gram of root.collins_primary.gramcat) {
-                if (!dict.phonetic && gram.pronunciation) dict.phonetic = `/${gram.pronunciation}/`;
-                if (!dict.sound && gram.audiourl) dict.sound = gram.audiourl;
+                if (!card.phonetic && gram.pronunciation) card.phonetic = `/${gram.pronunciation}/`;
+                if (!card.sound && gram.audiourl) card.sound = gram.audiourl;
             }
         }
     }
     // Simple Dict
-    if ((!dict.phonetic || !dict.sound) && root.simple?.word?.length) for (const x of root.simple?.word) {
+    if ((!card.phonetic || !card.sound) && root.simple?.word?.length) for (const x of root.simple?.word) {
         if (x['return-phrase'] !== en) continue;
-        if (!dict.phonetic && x.usphone) dict.phonetic = `/${x.usphone}/`;
-        if (!dict.sound && x.usspeech) dict.sound = `${youdaoAudio}${x.usspeech}`;
+        if (!card.phonetic && x.usphone) card.phonetic = `/${x.usphone}/`;
+        if (!card.sound && x.usspeech) card.sound = `${youdaoAudio}${x.usspeech}`;
     }
     // English-Chinese Dict
-    if ((!dict.trans || !dict.phonetic || !dict.sound) && root.ec?.word?.length) {
+    if ((!card.trans || !card.phonetic || !card.sound) && root.ec?.word?.length) {
         const ts = [];
         for (const x of root.ec?.word) {
-            if (!dict.phonetic && x.usphone) dict.phonetic = `/${x.usphone}/`;
-            if (!dict.sound && x.usspeech) dict.sound = `${youdaoAudio}${x.usspeech}`;
+            if (!card.phonetic && x.usphone) card.phonetic = `/${x.usphone}/`;
+            if (!card.sound && x.usspeech) card.sound = `${youdaoAudio}${x.usspeech}`;
             if (x.trs?.length) for (const y of x.trs) {
                 if (y.tr?.length) for (const z of y.tr) {
                     if (z.l?.i?.length) for (const w of z.l.i) {
@@ -56,10 +55,10 @@ const fillDict = async (dict: IDict): Promise<void> => {
                 }
             }
         }
-        if (!dict.trans && ts.length) dict.trans = ts.join('\n');
+        if (!card.trans && ts.length) card.trans = ts.join('\n');
     }
     // Collins Dict
-    if (!dict.trans && root.collins?.collins_entries?.length) {
+    if (!card.trans && root.collins?.collins_entries?.length) {
         const collinsTran = new RegExp(`<b>${en}`, 'i');
         const ts = [];
         for (const x of root.collins.collins_entries) {
@@ -73,20 +72,18 @@ const fillDict = async (dict: IDict): Promise<void> => {
                 }
             }
         }
-        if (ts.length) dict.trans = ts.join('\n');
+        if (ts.length) card.trans = ts.join('\n');
     }
     // Individual Dict
-    if (!dict.trans && root.individual?.trs?.length) {
+    if (!card.trans && root.individual?.trs?.length) {
         const ts = [];
         for (const x of root.individual.trs) ts.push(`${x.pos}${refine(x.tran)}`);
-        if (ts.length) dict.trans = ts.join('\n');
+        if (ts.length) card.trans = ts.join('\n');
     }
+    return card;
 }
 
 export default fillDict;
 
-if (import.meta.main) for (const word of Deno.args) {
-    const dict = {word};
-    await fillDict(dict);
-    console.log(dict);
-}
+if (import.meta.main) for (const word of Deno.args)
+    console.log(await fillDict(word, {}));

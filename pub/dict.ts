@@ -1,7 +1,6 @@
 import { Hono } from "hono";
 import { emptyResponse, STATUS_CODE } from '@sholvoir/generic/http';
 import { collectionDict } from "../lib/mongo.ts";
-import { IDict } from "../lib/idict.ts";
 import fill from '../lib/fill-dict.ts';
 import * as vocabulary from '../lib/vocabulary.ts';
 
@@ -12,14 +11,11 @@ app.get(async (c) => {
     if (!word) return emptyResponse(STATUS_CODE.BadRequest);
     const dict = await collectionDict.findOne({ word });
     if (dict) return c.json(dict)
-    const ndict: IDict = { word };
-    await fill(ndict);
+    const card = await fill(word, {});
     const vocab = await vocabulary.get();
-    if (vocab.has(word)) {
-        ndict.word = word;
-        await collectionDict.insertOne(ndict)
-    }
-    return c.json(ndict)
+    const ndict = { word, cards: [card] };
+    if (vocab.has(word)) await collectionDict.insertOne(ndict);
+    return c.json(ndict);
 });
 
 export default app;

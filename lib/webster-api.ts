@@ -1,5 +1,5 @@
 // deno-lint-ignore-file no-explicit-any
-import { IDict } from "./idict.ts";
+import { ICard } from "./idict.ts";
 
 const baseUrl = 'https://www.dictionaryapi.com/api/v3/references/collegiate/json';
 const soundBase = 'https://media.merriam-webster.com/audio/prons/en/us/mp3';
@@ -12,21 +12,19 @@ const getSubdirectory = (word: string) => {
     return 'number';
 }
 
-async function fillDict(dict: IDict): Promise<void> {
-    if (dict.sound) return;
-    const res = await fetch(`${baseUrl}/${encodeURIComponent(dict.word)}?key=${key}`);
-    if (!res.ok) return;
+async function fillDict(word: string, card: ICard): Promise<ICard> {
+    if (card.sound) return card;
+    const res = await fetch(`${baseUrl}/${encodeURIComponent(word)}?key=${key}`);
+    if (!res.ok) return card;
     const entries = await res.json() as Array<any>;
     const entry = entries[0];
-    if (typeof entry === 'string') return;
+    if (typeof entry === 'string') return card;
     const pr = entry.hwi?.prs?.at(0);
-    if (pr?.sound?.audio) dict.sound = `${soundBase}/${getSubdirectory(pr.sound.audio)}/${pr.sound.audio}.mp3`;
+    if (pr?.sound?.audio) card.sound = `${soundBase}/${getSubdirectory(pr.sound.audio)}/${pr.sound.audio}.mp3`;
+    return card;
 }
 
 export default fillDict;
 
-if (import.meta.main) {
-    const dict = {word: Deno.args[0]};
-    await fillDict(dict);
-    console.log(dict);
-}
+if (import.meta.main) for (const word of Deno.args)
+    console.log(await fillDict(word, {}));
