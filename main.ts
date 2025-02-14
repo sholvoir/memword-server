@@ -19,7 +19,7 @@ import auth_wordlist from "./auth/wordlist.ts";
 import admin_dict from "./admin/dict.ts";
 import admin_wordlist from "./admin/wordlist.ts";
 
-import { client } from './lib/mongo.ts';
+import { connect } from './lib/mongo.ts';
 
 const run = async () => {
     const app = new Hono();
@@ -43,7 +43,7 @@ const run = async () => {
     app.route('/admin/dict', admin_dict);
     app.route('/admin/wordlist', admin_wordlist);
 
-    await client.connect();
+    await connect();
 
     Deno.serve(app.fetch);
 }

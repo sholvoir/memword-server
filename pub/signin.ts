@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { emptyResponse, STATUS_CODE } from "@sholvoir/generic/http";
-import { memwordDB, collectionUser } from "../lib/mongo.ts";
+import { collectionUser, newTaskCollection } from "../lib/mongo.ts";
 import { twilio } from "../lib/twilio.ts";
 import { jwt } from "../lib/jwt.ts";
 
@@ -15,12 +15,7 @@ app.get(async (c) => {
     const result = await twilio.createVerificationCheck(user.phone, code);
     if (result.status != 'approved') return emptyResponse(STATUS_CODE.Unauthorized);
     await collectionUser.updateOne({ name }, { $set: { confirmed: true } });
-    const collectionNames = (await memwordDB.collections()).map(conn => conn.collectionName);
-    if (!collectionNames.includes(name)) {
-        const collection = await memwordDB.createCollection(name);
-        await collection.createIndex({ word: 1 }, { unique: true });
-        await collection.createIndex({ last: 1 });
-    }
+    await newTaskCollection( name )
     console.log(`API 'login' GET ${name}`);
     return c.json({ auth: await jwt.createToken(maxAge, { aud: user?.name }) });
 });

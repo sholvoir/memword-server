@@ -1,13 +1,12 @@
 {
     "lock": false,
-    "version": "0.5.1",
+    "version": "0.5.2",
     "imports": {
         "@b-fuze/deno-dom": "jsr:@b-fuze/deno-dom@^0.1.49",
-        "@sholvoir/generic": "jsr:@sholvoir/generic@^0.2.1",
+        "@sholvoir/generic": "jsr:@sholvoir/generic@^0.2.3",
         "@sholvoir/deno-smtp": "jsr:@sholvoir/deno-smtp@^0.9.9",
-        "@std/encoding": "jsr:@std/encoding@^1.0.7",
         "@std/http": "jsr:@std/http@^1.0.13",
-        "hono": "jsr:@hono/hono@^4.7.0",
+        "hono": "jsr:@hono/hono@^4.7.1",
         "minio": "npm:minio@^8.0.4",
         "mongodb": "npm:mongodb@^6.13.0"
     },
