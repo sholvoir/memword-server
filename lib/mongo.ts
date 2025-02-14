@@ -11,7 +11,7 @@ export const client = new MongoClient(Deno.env.get('MONGO_URI')!, {
     }
 });
 
-export const taskDB = client.db('task');
-export const collectionDict = client.db('dict').collection<IDict>('dict');
-export const collectionUser = client.db('user').collection<IUser>('user');
-export const collectionWordList = client.db('wordlist').collection<IWordList>('wordlist');
+export const memwordDB = client.db('memword');
+export const collectionDict = memwordDB.collection<IDict>('dict');
+export const collectionUser = memwordDB.collection<IUser>('user');
+export const collectionWordList = memwordDB.collection<IWordList>('wordlist');

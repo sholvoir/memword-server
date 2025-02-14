@@ -2,7 +2,7 @@
 import { emptyResponse, jsonResponse, STATUS_CODE } from '@sholvoir/generic/http';
 import { Int32 } from "mongodb";
 import { ITask } from "../lib/itask.ts";
-import { taskDB } from "../lib/mongo.ts";
+import { memwordDB } from "../lib/mongo.ts";
 import { Hono } from "hono";
 import { jwtEnv } from "../lib/env.ts";
 
@@ -14,7 +14,7 @@ app.post(async (c) => {
     const username = c.get('username');
     const clientTasks: Array<ITask> = await c.req.json();
     const serverTasks: ITask[] = [];
-    const collectionTask = taskDB.collection(username);
+    const collectionTask = memwordDB.collection(`_${username}`);
     const cursor = collectionTask.find({ last: { $gte: lastgt } });
     for await (const task of cursor) serverTasks.push(task as any);
     for (const ctask of clientTasks) {
@@ -33,7 +33,7 @@ app.post(async (c) => {
     const username = c.get('username');
     const words: Array<string> = await c.req.json();
     if (!Array.isArray(words)) return emptyResponse(STATUS_CODE.BadRequest);
-    const deleteResult = await taskDB.collection(username).deleteMany({ word: { $in: words } });
+    const deleteResult = await memwordDB.collection(username).deleteMany({ word: { $in: words } });
     console.log(`API 'task' DELETE ${username} with tasks ${deleteResult.deletedCount}.`);
     return jsonResponse(deleteResult);
 })
