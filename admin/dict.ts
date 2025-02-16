@@ -10,7 +10,7 @@ app.put(async (c) => {
     const clientDict = await c.req.json() as IDict;
     if (!clientDict) return emptyResponse(STATUS_CODE.BadRequest);
     delete clientDict._id;
-    const result = await collectionDict.replaceOne({ word: clientDict.word }, clientDict);
+    const result = await collectionDict.replaceOne({ word: clientDict.word }, clientDict, { upsert: true });
     if (!result.acknowledged) return emptyResponse(STATUS_CODE.InternalServerError);
     console.log(`API word PUT ${clientDict.word}`);
     return emptyResponse();

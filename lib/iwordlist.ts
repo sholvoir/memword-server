@@ -1,6 +1,7 @@
 export interface IWordList {
     wlid: string;
     version: string;
+    disc?: string;
 }
 
 const regex = /^(.+?)\/(.+)$/;
