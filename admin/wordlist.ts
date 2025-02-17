@@ -9,7 +9,7 @@ import { jwtEnv } from "../lib/env.ts";
 const app = new Hono<jwtEnv>();
 
 app.post(async (c) => {
-    const name = c.req.query('name');
+    const {name, disc} = c.req.query();
     if (!name) return emptyResponse(STATUS_CODE.BadRequest);
     const text = await c.req.text();
     if (!text.length) return emptyResponse(STATUS_CODE.BadRequest);
@@ -19,9 +19,9 @@ app.post(async (c) => {
     const result = await minio.putObject(B2_BUCKET, `${wlid}-${newVersion}.txt`, text, 'text/plain');
     console.log(result);
     if (wl) {
-        await collectionWordList.updateOne({ wlid }, { $set: { version: newVersion } });
+        await collectionWordList.updateOne({ wlid }, { $set: { version: newVersion, disc } });
         await minio.removeObject(B2_BUCKET, `${wlid}-${wl.version}.txt`);
-    } else await collectionWordList.insertOne({ wlid, version: newVersion });
+    } else await collectionWordList.insertOne({ wlid, version: newVersion, disc });
     console.log(`API '/wordlist' POST ${wlid}-${newVersion}, successed.`);
     return emptyResponse();
 });
