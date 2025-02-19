@@ -27,12 +27,12 @@ const run = async () => {
     app.use(cors());
     app.use(serveStatic({root: './static/'}));
 
-    app.route('/signup', signup);
-    app.route('/signin', signin);
-    app.route('/otp', otp);
-    app.route('/sound', sound);
-    app.route('/dict', pub_dict);
-    app.route('/wordlist', pub_wordlist);
+    app.route('/pub/signup', signup);
+    app.route('/pub/signin', signin);
+    app.route('/pub/otp', otp);
+    app.route('/pub/sound', sound);
+    app.route('/pub/dict', pub_dict);
+    app.route('/pub/wordlist', pub_wordlist);
 
     app.use('/api/*', jwt);
     app.route('/api/task', task);

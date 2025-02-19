@@ -9,8 +9,15 @@ import { minio } from "../lib/minio.ts";
 import { jwtEnv } from "../lib/env.ts";
 
 const app = new Hono<jwtEnv>();
-
-app.post(async (c) => {
+app.get(async c => {
+    const username = c.get('username');
+    const result = [];
+    for await (const wl of collectionWordList.find(
+        {wlid: { $regex: new RegExp(`^${username}/.+$`)}},
+        { _id: 0 }
+    )) result.push(wl);
+    return c.json(result);
+}).post(async (c) => {
     const username = c.get('username');
     const wlname = c.req.query('name');
     if (!wlname) return emptyResponse(STATUS_CODE.BadRequest);
