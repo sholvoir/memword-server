@@ -40,6 +40,14 @@ app.get(async c => {
     vocabulary.add(words);
     console.log(`API '/wordlist' POST ${username}/${wlname}, successed.`);
     return emptyResponse();
+}).delete(async c => {
+    const username = c.get('username');
+    const wlname = c.req.query('name');
+    if (!wlname) return emptyResponse(STATUS_CODE.BadRequest);
+    const wlid = `${username}/${wlname}`;
+    const result = await collectionWordList.deleteOne({ wlid });
+    if (!result.acknowledged) return c.json(result, STATUS_CODE.Conflict);
+    return emptyResponse();
 });
 
 export default app;

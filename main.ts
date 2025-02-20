@@ -30,7 +30,7 @@ const run = async () => {
     app.route('/pub/signup', signup);
     app.route('/pub/signin', signin);
     app.route('/pub/otp', otp);
-    app.route('/pub/sound', sound);
+    app.route('/sound', sound);
     app.route('/pub/dict', pub_dict);
     app.route('/pub/wordlist', pub_wordlist);
 
