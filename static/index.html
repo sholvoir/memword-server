@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charSet="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MemWord</title>
+    <link rel="icon" type="image/svg+xml" href="icon/icon.svg" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-startup-image" href="icon/icon-1024.png" />
+    <meta name="apple-mobile-web-app-title" content="MemWord" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="theme-color" content="#CBD5E1" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0F172A" media="(prefers-color-scheme: dark)" />
+    <script>navigator.serviceWorker.register('worker.js')</script>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="bg-slate-300 text-slate-800 dark:bg-slate-900 dark:text-slate-300">
+    <div id="root" class="h-dvh flex flex-col"></div>
+    <script type="module" src="index.js"></script>
+</body>
+</html>
