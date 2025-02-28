@@ -13,7 +13,7 @@ app.post(async (c) => {
     if (!name) return emptyResponse(STATUS_CODE.BadRequest);
     const text = await c.req.text();
     if (!text.length) return emptyResponse(STATUS_CODE.BadRequest);
-    const wlid = `system/${name}`;
+    const wlid = `common/${name}`;
     const wl = await collectionWordList.findOne({ wlid });
     const newVersion = wl ? versionpp(wl.version) : '0.0.1';
     const result = await minio.putObject(B2_BUCKET, `${wlid}-${newVersion}.txt`, text, 'text/plain');

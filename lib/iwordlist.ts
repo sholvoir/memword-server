@@ -4,6 +4,10 @@ export interface IWordList {
     disc?: string;
 }
 
+export const compareWL = (a: IWordList, b: IWordList) =>
+    a.wlid.localeCompare(b.wlid);
+    
+
 const regex = /^(.+?)\/(.+)$/;
 export const splitID = (id: string): [string, string] => {
     const m = regex.exec(id);
