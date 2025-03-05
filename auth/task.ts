@@ -27,14 +27,14 @@ app.post(async (c) => {
             await collectionTask.updateOne(filter, { $set });
         }
     }
-    console.log(`API '/task' POST ${username} ${lastgt} with tasks ${clientTasks.length}, return ${serverTasks.length}.`);
+    console.log(`API task POST ${username} ${lastgt} with tasks ${clientTasks.length}, return ${serverTasks.length}.`);
     return jsonResponse(serverTasks);
 }).delete(async (c) => {
     const username = c.get('username');
     const words: Array<string> = await c.req.json();
     if (!Array.isArray(words)) return emptyResponse(STATUS_CODE.BadRequest);
     const deleteResult = await getCollectionTask(username).deleteMany({ word: { $in: words } });
-    console.log(`API 'task' DELETE ${username} with tasks ${deleteResult.deletedCount}.`);
+    console.log(`API task DELETE ${username} with tasks ${deleteResult.deletedCount}.`);
     return jsonResponse(deleteResult);
 })
 

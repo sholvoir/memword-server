@@ -9,7 +9,7 @@ app.post(async (c) => {
     const name = c.get('username');
     const issue = (await c.req.json()).issue;
     if (!issue) return emptyResponse(STATUS_CODE.BadRequest);
-    console.log(`API '/issue' POST ${name}`);
+    console.log(`API issue POST ${name}`);
     return await sendEmail({
         from: 'MEMWORD <memword.sholvoir@gmail.com>',
         to: 'sovar.he@gmail.com',

@@ -4,34 +4,11 @@ import { versionpp } from "@sholvoir/generic/versionpp";
 import { minio } from "./minio.ts";
 import { collectionWordList } from "./mongo.ts";
 
-const ignoreWlid = 'system/spell-check-ignore';
-const ignoreSet = new Set<string>();
-let currentIgnoreVersion: string;
-
-const getIgnore = async () => {
-    const ignoreVersion = (await collectionWordList.findOne({ wlid: ignoreWlid }))?.version ?? '0.0.1';
-    if (currentIgnoreVersion !== ignoreVersion) {
-        const res = await fetch(`${B2_BASE_URL}/${ignoreWlid}-${ignoreVersion}.txt`);
-        if (!res.ok) throw new Error('Network Error!');
-        ignoreSet.clear();
-        for (let line of (await res.text()).split('\n')) if (line = line.trim()) ignoreSet.add(line);
-        currentIgnoreVersion = ignoreVersion;
-    }
-}
-
-const wlid = 'system/spell-check';
-const scSet = new Set<string>();
-let scVersion: string | undefined;
+const wlid = 'system/vocabulary';
+const vocab = new Set<string>();
+let version: string | undefined;
 let added = false;
 let funcIndex = 0;
-
-const getData = async () => {
-    scVersion = (await collectionWordList.findOne({ wlid: wlid }))?.version ?? '0.0.1';
-    if (!scVersion) await collectionWordList.insertOne({ wlid: wlid, version: (scVersion = '0.0.1') });
-    const res = await fetch(`${B2_BASE_URL}/${wlid}-${scVersion}.txt`);
-    if (!res.ok) throw new Error('Network Error!');
-    for (let line of (await res.text()).split('\n')) if (line = line.trim()) scSet.add(line);
-}
 
 // const spliteNum = /^([A-Za-zèé /&''.-]+)(\d*)/;
 const entitiesRegex = /&(quot|apos|amp|lt|gt|#(x?\d+));/g;
@@ -63,37 +40,45 @@ const scfuncs = [
 
 const update = async () => {
     added = false;
-    const newVersion = versionpp(scVersion!);
+    const newVersion = versionpp(version!);
     await minio.putObject(B2_BUCKET, `${wlid}-${newVersion}.txt`,
-        Array.from(scSet).sort().join('\n'), 'text/plain');
+        Array.from(vocab).sort().join('\n'), 'text/plain');
     await collectionWordList.updateOne({ wlid }, { $set: { version: newVersion } });
-    await minio.removeObject(B2_BUCKET, `${wlid}-${scVersion}.txt`);
-    scVersion = newVersion;
+    await minio.removeObject(B2_BUCKET, `${wlid}-${version}.txt`);
+    version = newVersion;
+}
+
+export const addToVocabulary = (words: Iterable<string>) => {
+    const oldSize = vocab.size;
+    for (const word of words) vocab.add(word);
+    if (vocab.size > oldSize) update();
+}
+
+export const getVocabulary = async () => {
+    if (vocab.size) return vocab;
+    version = (await collectionWordList.findOne({ wlid: wlid }))?.version;
+    if (!version) await collectionWordList.insertOne({ wlid: wlid, version: (version = '0.3.3') });
+    const res = await fetch(`${B2_BASE_URL}/${wlid}-${version}.txt`);
+    if (!res.ok) throw new Error('Network Error!');
+    for (let line of (await res.text()).split('\n')) if (line = line.trim()) vocab.add(line);
+    return vocab;
 }
 
 export const check = async (lines: Iterable<string>): Promise<[Set<string>, Record<string, Array<string>>]> => {
     const words = new Set<string>();
     const replaces: Record<string, Array<string>> = {};
-    await getIgnore();
-    if (!scSet.size) await getData();
+    if (!vocab.size) await getVocabulary();
     A: for (let word of lines) if (word = word.trim()) {
-        if (ignoreSet.has(word)) { words.add(word); continue; }
-        if (scSet.has(word)) { words.add(word); continue; }
+        if (vocab.has(word)) { words.add(word); continue; }
         const replace = new Set<string>();
         for (let i = 0; i < scfuncs.length; i++) {
             const funIndex = funcIndex++ % scfuncs.length;
             const entries = await scfuncs[funIndex](word);
-            if (entries.includes(word)) { scSet.add(word); added = true; words.add(word); continue A; }
+            if (entries.includes(word)) { vocab.add(word); added = true; words.add(word); continue A; }
             else entries.forEach(entry => replace.add(entry));
         }
         replaces[word] = Array.from(replace);
     }
     if (added) update();
     return [words, replaces];
-}
-
-export const getVocabulary = async () => {
-    await getIgnore();
-    if (!scSet.size) await getData();
-    return scSet.union(ignoreSet);
 }

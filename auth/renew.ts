@@ -7,7 +7,7 @@ const app = new Hono<jwtEnv>()
 
 app.post(async (c) => {
     const name = c.get('username');
-    console.log(`API '/renew' POST ${name}`);
+    console.log(`API renew POST ${name}`);
     return c.json({ auth: await jwt.createToken(maxAge, { aud: name }) });
 });
 

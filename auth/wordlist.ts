@@ -8,14 +8,7 @@ import { minio } from "../lib/minio.ts";
 import { jwtEnv } from "../lib/env.ts";
 
 const app = new Hono<jwtEnv>();
-app.get(async c => {
-    const username = c.get('username');
-    const result = [];
-    for await (const wl of collectionWordList.find(
-        { wlid: { $regex: new RegExp(`^${username}/.+$`) } }
-    )) result.push(wl);
-    return c.json(result);
-}).post(async (c) => {
+app.post(async (c) => {
     const username = c.get('username');
     const wlname = c.req.query('name');
     const disc = c.req.query('disc');
@@ -36,7 +29,7 @@ app.get(async c => {
         await collectionWordList.updateOne({ wlid }, { $set: { version: newVersion, disc } });
         await minio.removeObject(B2_BUCKET, `${wlid}-${wl.version}.txt`);
     } else await collectionWordList.insertOne({ wlid, version: newVersion });
-    console.log(`API '/wordlist' POST ${username}/${wlname}, successed.`);
+    console.log(`API 'wordlist' POST ${username}/${wlname}, successed.`);
     return c.json({ wlid, version: newVersion, disc });
 }).delete(async c => {
     const username = c.get('username');
@@ -45,6 +38,7 @@ app.get(async c => {
     const wlid = `${username}/${wlname}`;
     const result = await collectionWordList.deleteOne({ wlid });
     if (!result.acknowledged) return c.json(result, STATUS_CODE.Conflict);
+    console.log(`API 'wordlist' DELETE ${username}/${wlname}, successed.`);
     return emptyResponse();
 });
 

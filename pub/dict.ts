@@ -15,6 +15,7 @@ app.get(async (c) => {
     const vocab = await getVocabulary();
     const ndict = { word, cards: [card] };
     if (vocab.has(word)) await collectionDict.insertOne(ndict);
+    console.log(`API 'dict' GET word: ${word}`);
     return c.json(ndict);
 });
 

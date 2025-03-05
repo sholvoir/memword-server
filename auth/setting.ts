@@ -15,7 +15,7 @@ app.post(async (c) => {
     if (serverSetting.version >= clientSetting.version)
         return c.json(serverSetting);
     await collectionUser.updateOne({ _id: user._id }, { $set: { setting: clientSetting } })
-    console.log(`API '/setting' POST ${name}`);
+    console.log(`API setting POST ${name}`);
     return c.json(clientSetting);
 });
 

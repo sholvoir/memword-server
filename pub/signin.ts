@@ -16,7 +16,7 @@ app.get(async (c) => {
     if (result.status != 'approved') return emptyResponse(STATUS_CODE.Unauthorized);
     await collectionUser.updateOne({ name }, { $set: { confirmed: true } });
     await newTaskCollection( name )
-    console.log(`API 'login' GET ${name}`);
+    console.log(`API 'signin' GET ${name}`);
     return c.json({ auth: await jwt.createToken(maxAge, { aud: user?.name }) });
 });
 
