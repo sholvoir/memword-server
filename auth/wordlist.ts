@@ -3,7 +3,6 @@ import { B2_BUCKET } from "../lib/common.ts";
 import { emptyResponse, STATUS_CODE } from "@sholvoir/generic/http";
 import { versionpp } from "@sholvoir/generic/versionpp";
 import { collectionWordList } from "../lib/mongo.ts";
-import * as vocabulary from '../lib/vocabulary.ts';
 import * as spellCheck from '../lib/spell-check.ts';
 import { minio } from "../lib/minio.ts";
 import { jwtEnv } from "../lib/env.ts";
@@ -37,7 +36,6 @@ app.get(async c => {
         await collectionWordList.updateOne({ wlid }, { $set: { version: newVersion, disc } });
         await minio.removeObject(B2_BUCKET, `${wlid}-${wl.version}.txt`);
     } else await collectionWordList.insertOne({ wlid, version: newVersion });
-    vocabulary.add(words);
     console.log(`API '/wordlist' POST ${username}/${wlname}, successed.`);
     return c.json({ wlid, version: newVersion, disc });
 }).delete(async c => {

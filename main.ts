@@ -8,6 +8,7 @@ import signup from "./pub/signup.ts";
 import signin from "./pub/signin.ts";
 import otp from "./pub/otp.ts";
 import sound from "./pub/sound.ts";
+import vocabulary from "./pub/vocabulary.ts"
 import pub_dict from "./pub/dict.ts";
 import pub_wordlist from "./pub/wordlist.ts";
 
@@ -30,7 +31,8 @@ const run = async () => {
     app.route('/pub/signup', signup);
     app.route('/pub/signin', signin);
     app.route('/pub/otp', otp);
-    app.route('/sound', sound);
+    app.route('/pub/sound', sound);
+    app.route('/pub/vocabulary', vocabulary);
     app.route('/pub/dict', pub_dict);
     app.route('/pub/wordlist', pub_wordlist);
 

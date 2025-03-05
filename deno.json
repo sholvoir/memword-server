@@ -1,6 +1,6 @@
 {
     "lock": false,
-    "version": "0.6.6",
+    "version": "0.7.0",
     "imports": {
         "@b-fuze/deno-dom": "jsr:@b-fuze/deno-dom@^0.1.49",
         "@sholvoir/generic": "jsr:@sholvoir/generic@^0.2.5",
@@ -10,6 +10,7 @@
         "minio": "npm:minio@^8.0.4",
         "mongodb": "npm:mongodb@^6.14.2"
     },
+    "lint": {"exclude": ["static"]},
     "tasks": {
         "start": "deno run -A --env --watch=lib/,auth/,pub/,mid/,admin/ main.ts",
         "server": "deno -A --env server.ts"

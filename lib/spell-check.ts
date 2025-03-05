@@ -72,7 +72,6 @@ const update = async () => {
 }
 
 export const check = async (lines: Iterable<string>): Promise<[Set<string>, Record<string, Array<string>>]> => {
-
     const words = new Set<string>();
     const replaces: Record<string, Array<string>> = {};
     await getIgnore();
@@ -91,4 +90,10 @@ export const check = async (lines: Iterable<string>): Promise<[Set<string>, Reco
     }
     if (added) update();
     return [words, replaces];
+}
+
+export const getVocabulary = async () => {
+    await getIgnore();
+    if (!scSet.size) await getData();
+    return scSet.union(ignoreSet);
 }
