@@ -61,7 +61,18 @@ const scfuncs = [
         [[/<(p|h1) class="(?:elMfuCTjKMwxtSEEnUsi)?">(.*?)<\/\1>/g, 2]])
 ];
 
+const update = async () => {
+    added = false;
+    const newVersion = versionpp(scVersion!);
+    await minio.putObject(B2_BUCKET, `${wlid}-${newVersion}.txt`,
+        Array.from(scSet).sort().join('\n'), 'text/plain');
+    await collectionWordList.updateOne({ wlid }, { $set: { version: newVersion } });
+    await minio.removeObject(B2_BUCKET, `${wlid}-${scVersion}.txt`);
+    scVersion = newVersion;
+}
+
 export const check = async (lines: Iterable<string>): Promise<[Set<string>, Record<string, Array<string>>]> => {
+
     const words = new Set<string>();
     const replaces: Record<string, Array<string>> = {};
     await getIgnore();
@@ -78,17 +89,6 @@ export const check = async (lines: Iterable<string>): Promise<[Set<string>, Reco
         }
         replaces[word] = Array.from(replace);
     }
+    if (added) update();
     return [words, replaces];
-}
-
-export const update = async () => {
-    if (added) {
-        added = false;
-        const newVersion = versionpp(scVersion!);
-        await minio.putObject(B2_BUCKET, `${wlid}-${newVersion}.txt`,
-            Array.from(scSet).sort().join('\n'), 'text/plain');
-        await collectionWordList.updateOne({ wlid }, { $set: { version: newVersion } });
-        await minio.removeObject(B2_BUCKET, `${wlid}-${scVersion}.txt`);
-        scVersion = newVersion;
-    }
 }
