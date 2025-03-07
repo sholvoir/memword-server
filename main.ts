@@ -14,11 +14,12 @@ import pub_vocabulary from "./pub/vocabulary.ts"
 
 import task from './auth/task.ts';
 import renew from './auth/renew.ts';
-import issue from './auth/issue.ts';
+import auth_issue from './auth/issue.ts';
 import setting from './auth/setting.ts';
 import auth_wordlist from "./auth/wordlist.ts";
 
 import admin_dict from "./admin/dict.ts";
+import admin_issue from "./admin/issue.ts";
 import admin_vocabulary from "./admin/vocabulary.ts";
 
 import { connect } from './lib/mongo.ts';
@@ -39,12 +40,13 @@ const run = async () => {
     app.use('/api/*', jwt);
     app.route('/api/task', task);
     app.route('/api/renew', renew);
-    app.route('/api/issue', issue);
     app.route('/api/setting', setting);
+    app.route('/api/issue', auth_issue);
     app.route('/api/wordlist', auth_wordlist);
 
     app.use('/admin/*', jwt, admin);
     app.route('/admin/dict', admin_dict);
+    app.route('/admin/issue', admin_issue);
     app.route('/admin/vocabulary', admin_vocabulary);
 
     await connect();
