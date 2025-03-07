@@ -3,6 +3,7 @@ import { IDict } from "./idict.ts";
 import { IUser } from "./iuser.ts";
 import { IWordList } from "./iwordlist.ts";
 import { ITask } from "./itask.ts";
+import { IIssue } from "./iissue.ts";
 
 const options = { serverApi: {
     version: ServerApiVersion.v1,
@@ -18,6 +19,7 @@ const memwordDB = client.db('memword');
 
 export const collectionDict = memwordDB.collection<IDict>('dict');
 export const collectionUser = memwordDB.collection<IUser>('user');
+export const collectionIssue = memwordDB.collection<IIssue>('issue');
 export const collectionWordList = memwordDB.collection<IWordList>('wordlist');
 
 export const getCollectionTask = (username: string) => memwordDB.collection<ITask>(`_${username}`);
