@@ -1,6 +1,6 @@
 {
     "lock": false,
-    "version": "0.7.3",
+    "version": "0.7.4",
     "imports": {
         "@b-fuze/deno-dom": "jsr:@b-fuze/deno-dom@^0.1.49",
         "@sholvoir/generic": "jsr:@sholvoir/generic@^0.2.5",
