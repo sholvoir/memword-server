@@ -36,8 +36,11 @@ app.post(async (c) => {
     const wlname = c.req.query('name');
     if (!wlname) return emptyResponse(STATUS_CODE.BadRequest);
     const wlid = `${username}/${wlname}`;
+    const wl = await collectionWordList.findOne({ wlid });
+    if (!wl) return emptyResponse(STATUS_CODE.NotFound);
     const result = await collectionWordList.deleteOne({ wlid });
     if (!result.acknowledged) return c.json(result, STATUS_CODE.Conflict);
+    await minio.removeObject(B2_BUCKET, `${wlid}-${wl.version}.txt`);
     console.log(`API 'wordlist' DELETE ${username}/${wlname}, successed.`);
     return emptyResponse();
 });
