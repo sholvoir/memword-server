@@ -1,8 +1,8 @@
-// deno-lint-ignore-file no-explicit-any
 import { Hono } from "hono";
 import { jwtEnv } from "../lib/env.ts";
 import { collectionIssue } from "../lib/mongo.ts";
 import { emptyResponse, STATUS_CODE } from "@sholvoir/generic/http";
+import { ObjectId } from "mongodb";
 
 const app = new Hono<jwtEnv>();
 
@@ -15,7 +15,7 @@ app.get(async (c) => {
 }).delete(async c => {
     const id = c.req.query('id');
     if (!id) return emptyResponse(STATUS_CODE.BadRequest);
-    const result = await collectionIssue.deleteOne({_id: id as any})
+    const result = await collectionIssue.deleteOne({_id: new ObjectId(id)})
     if (!result.acknowledged) return c.json(result, STATUS_CODE.InternalServerError);
     else return c.json(result);
 });
