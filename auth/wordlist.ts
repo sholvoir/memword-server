@@ -1,5 +1,6 @@
+// deno-lint-ignore-file no-cond-assign
 import { Hono } from "hono";
-import { B2_BUCKET } from "../lib/common.ts";
+import { B2_BASE_URL, B2_BUCKET } from "../lib/common.ts";
 import { emptyResponse, STATUS_CODE } from "@sholvoir/generic/http";
 import { versionpp } from "@sholvoir/generic/versionpp";
 import { collectionWordList } from "../lib/mongo.ts";
@@ -12,6 +13,7 @@ app.post(async (c) => {
     const username = c.get('username');
     const wlname = c.req.query('name');
     const disc = c.req.query('disc');
+    const replace = c.req.query('replace');
     if (!wlname) return emptyResponse(STATUS_CODE.BadRequest);
     const wlid = `${username}/${wlname}`;
     const text = await c.req.text();
@@ -22,6 +24,11 @@ app.post(async (c) => {
         return c.json(replaces, STATUS_CODE.NotAcceptable);
     }
     const wl = await collectionWordList.findOne({ wlid });
+    if (!replace && wl) {
+        const res = await fetch(`${B2_BASE_URL}/${wlid}-${wl.version}.txt`);
+        if (!res.ok) return emptyResponse(STATUS_CODE.InternalServerError);
+        for (let line of (await res.text()).split('\n')) if (line = line.trim()) words.add(line);
+    }
     const newVersion = wl ? versionpp(wl.version) : '0.0.1';
     await minio.putObject(B2_BUCKET, `${wlid}-${newVersion}.txt`,
         Array.from(words).sort().join('\n'), 'text/plain');
