@@ -1,4 +1,6 @@
 {
+  "deno.enable": true,
+  "biome.enabled": false,
   "deno.enablePaths": [
     "./"
   ],
