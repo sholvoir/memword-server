@@ -15,7 +15,7 @@ const fillPic = async (dict: IDict): Promise<void> => {
 export default fillPic;
 
 if (import.meta.main) {
-    const dict = {word:Deno.args[0]};
+    const dict = {word:Deno.args[0], version:0};
     await fillPic(dict);
     console.log(dict);
 }
