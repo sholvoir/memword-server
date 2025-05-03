@@ -8,6 +8,6 @@ export interface ICard {
 export interface IDict {
     _id?: string;
     word: string;
-    version: number;
+    version?: number;
     cards?: Array<ICard>;
 }
