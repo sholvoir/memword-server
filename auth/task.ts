@@ -7,32 +7,36 @@ import { Hono } from "hono";
 import { jwtEnv } from "../lib/env.ts";
 
 const app = new Hono<jwtEnv>();
+const tasks = new Map<string, ITask>();
 
 app.post(async (c) => {
-    const lastgt = +(c.req.query('lastgt')!);
-    if (isNaN(lastgt)) return emptyResponse(STATUS_CODE.BadRequest);
     const username = c.get('username');
-    const clientTasks: Array<ITask> = await c.req.json();
-    const serverTasks: ITask[] = [];
     const collectionTask = getCollectionTask(username);
-    const cursor = collectionTask.find({ last: { $gte: lastgt } });
-    for await (const task of cursor) serverTasks.push(task as any);
+    if (tasks.size == 0)
+        for await (const task of collectionTask.find())
+            tasks.set(task.word, task);
+    const clientTasks: Array<ITask> = await c.req.json();
     for (const ctask of clientTasks) {
-        const filter = { word: ctask.word };
         delete ctask._id;
-        const otask = (await collectionTask.findOne(filter)) as ITask | null;
-        if (!otask) await collectionTask.insertOne(ctask as any);
-        else if (ctask.last > otask.last) {
-            const $set = { last: new Int32(ctask.last), next: new Int32(ctask.next), level: new Int32(ctask.level) } as any;
-            await collectionTask.updateOne(filter, { $set });
+        if (tasks.has(ctask.word)) {
+            const stask = tasks.get(ctask.word)!;
+            if (ctask.last > stask.last) {
+                tasks.set(ctask.word, ctask);
+                const $set = { last: new Int32(ctask.last), next: new Int32(ctask.next), level: new Int32(ctask.level) } as any;
+                await collectionTask.updateOne({ word: ctask.word }, { $set });
+            }
+        } else {
+            tasks.set(ctask.word, ctask);
+            await collectionTask.insertOne(ctask);
         }
     }
-    console.log(`API task POST ${username} ${lastgt} with tasks ${clientTasks.length}, return ${serverTasks.length}.`);
-    return jsonResponse(serverTasks);
+    console.log(`API task POST ${username} with tasks ${clientTasks.length}, return ${tasks.size}.`);
+    return jsonResponse(Array.from(tasks.values().map(task=>(delete task._id, task))));
 }).delete(async (c) => {
     const username = c.get('username');
     const words: Array<string> = await c.req.json();
     if (!Array.isArray(words)) return emptyResponse(STATUS_CODE.BadRequest);
+    for (const word of words) tasks.delete(word);
     const deleteResult = await getCollectionTask(username).deleteMany({ word: { $in: words } });
     console.log(`API task DELETE ${username} with tasks ${deleteResult.deletedCount}.`);
     return jsonResponse(deleteResult);
