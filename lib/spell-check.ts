@@ -33,9 +33,9 @@ const scfuncs = [
         [/<span class="fw-bold ure">(.+?)<\/span>/g, 1],
         [/<span id=".*?" class="va">(.+?)<\/span>/g, 1]]),
     getScfunc('https://www.oxfordlearnersdictionaries.com/us/search/english/?q=',
-        [[/<h1 class="headword".*?>(.+?)<\/h1>/g, 1]]),
+        [[/<h1 class="headword".*?>(.+?)<\/h1>/g, 1]])/*,
     getScfunc('https://www.dictionary.com/browse/',
-        [[/<(p|h1) class="(?:elMfuCTjKMwxtSEEnUsi)?">(.*?)<\/\1>/g, 2]])
+        [[/<(p|h1) class="(?:elMfuCTjKMwxtSEEnUsi)?">(.*?)<\/\1>/g, 2]])*/
 ];
 
 const update = async () => {
