@@ -8,10 +8,10 @@ async function fillDict(word: string, card: ICard): Promise<ICard> {
     const res = await fetch(`${baseUrl}/${encodeURIComponent(word)}`);
     if (!res.ok) return card;
     const entries = await res.json();
-    const phonetics = entries.flatMap((e: any) => e.phonetics) as any[];
+    const phonetics = entries.flatMap((e: any) => e.phonetics??[]) as any[];
     if ((!card.phonetic || !card.sound)) {
         let oscore = 5;
-        for (const entry of entries) if (entry.phonetics) for (const ph of phonetics) {
+        for (const ph of phonetics) {
             let score = 10;
             if (ph.audio) {
                 const m = ph.audio.match(filenameRegExp);
@@ -25,7 +25,7 @@ async function fillDict(word: string, card: ICard): Promise<ICard> {
                         if (fileName.includes('-unstressed')) score--;
                     } else score = 6;
                 } else score = 6;
-            } else score = 6;
+            }
             if (score > oscore) {
                 if (ph.text) card.phonetic = ph.text;
                 if (ph.audio) card.sound = ph.audio;
@@ -33,15 +33,14 @@ async function fillDict(word: string, card: ICard): Promise<ICard> {
             }
         }
     }
-    if (!card.def) {
-        let def = '';
-        for (const entry of entries) if (entry.meanings) for (const meaning of entry.meanings) {
-            def += `${meaning.partOfSpeech}\n`;
-            if (meaning.definitions) for (const definition of meaning.definitions)
-                def += `    ${definition.definition}\n`;
-        }
-        card.def = def;
+    let def = '';
+    for (const entry of entries) if (entry.meanings) for (const meaning of entry.meanings) {
+        def += `${meaning.partOfSpeech}`;
+        if (meaning.definitions) for (const definition of meaning.definitions)
+            def += `\n    ${definition.definition}`;
     }
+    if (card.def) card.def += `\n${def}`;
+    else card.def = def;
     return card;
 }
 

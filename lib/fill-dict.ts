@@ -12,9 +12,9 @@ export default async (word: string, card: ICard) => {
     if (!card.sound) await websterWeb(word, card);
     // Oxford
     if (!card.phonetic || !card.sound) await oxford(word, card);
-    // Youdao
-    if (!card.trans || !card.phonetic || !card.sound) await youdao(word, card);
     // Google Dictionary
     if (!card.sound || !card.phonetic || !card.def) await dictionary(word, card);
+    // Youdao
+    if (!card.sound || !card.phonetic || !card.def) await youdao(word, card);
     return card;
 }

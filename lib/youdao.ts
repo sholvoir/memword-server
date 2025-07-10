@@ -40,25 +40,8 @@ const fillDict = async (en: string, card: ICard): Promise<ICard> => {
         if (!card.phonetic && x.usphone) card.phonetic = `/${x.usphone}/`;
         if (!card.sound && x.usspeech) card.sound = `${youdaoAudio}${x.usspeech}`;
     }
-    // English-Chinese Dict
-    if ((!card.trans || !card.phonetic || !card.sound) && root.ec?.word?.length) {
-        const ts = [];
-        for (const x of root.ec?.word) {
-            if (!card.phonetic && x.usphone) card.phonetic = `/${x.usphone}/`;
-            if (!card.sound && x.usspeech) card.sound = `${youdaoAudio}${x.usspeech}`;
-            if (x.trs?.length) for (const y of x.trs) {
-                if (y.tr?.length) for (const z of y.tr) {
-                    if (z.l?.i?.length) for (const w of z.l.i) {
-                        if (w.match(nameRegex)) continue;
-                        ts.push(refine(w));
-                    }
-                }
-            }
-        }
-        if (!card.trans && ts.length) card.trans = ts.join('\n');
-    }
     // Collins Dict
-    if (!card.trans && root.collins?.collins_entries?.length) {
+    if (!card.def && root.collins?.collins_entries?.length) {
         const collinsTran = new RegExp(`<b>${en}`, 'i');
         const ts = [];
         for (const x of root.collins.collins_entries) {
@@ -72,13 +55,33 @@ const fillDict = async (en: string, card: ICard): Promise<ICard> => {
                 }
             }
         }
-        if (ts.length) card.trans = ts.join('\n');
+        if (ts.length) card.def = ts.join('\n');
     }
     // Individual Dict
-    if (!card.trans && root.individual?.trs?.length) {
+    if (!card.def && root.individual?.trs?.length) {
         const ts = [];
         for (const x of root.individual.trs) ts.push(`${x.pos}${refine(x.tran)}`);
-        if (ts.length) card.trans = ts.join('\n');
+        if (ts.length) card.def = ts.join('\n');
+    }
+    // English-Chinese Dict
+    if (root.ec?.word?.length) {
+        const ts = [];
+        for (const x of root.ec?.word) {
+            if (!card.phonetic && x.usphone) card.phonetic = `/${x.usphone}/`;
+            if (!card.sound && x.usspeech) card.sound = `${youdaoAudio}${x.usspeech}`;
+            if (x.trs?.length) for (const y of x.trs) {
+                if (y.tr?.length) for (const z of y.tr) {
+                    if (z.l?.i?.length) for (const w of z.l.i) {
+                        if (w.match(nameRegex)) continue;
+                        ts.push(refine(w));
+                    }
+                }
+            }
+        }
+        if (ts.length) {
+            if(card.def) card.def = `${ts.join('\n')}\n${card.def}`;
+            else card.def = ts.join('\n');
+        }
     }
     return card;
 }

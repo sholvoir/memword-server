@@ -1,6 +1,5 @@
 export interface ICard {
     def?: string;
-    trans?: string;
     sound?: string;
     phonetic?: string;
 }
