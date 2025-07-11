@@ -11,6 +11,7 @@ async function fillDict(word: string, card: ICard): Promise<ICard> {
         const mean: IMeaning = { pos: meaning.partOfSpeech, meaning: [] };
         if (meaning.definitions) for (const definition of meaning.definitions)
             mean.meaning!.push({ def: definition.definition });
+        meanings.push(mean);
     }
     if (meanings.length) card.meanings = meanings;
     return card;
