@@ -1,9 +1,15 @@
+export interface IMeaning {
+    pos?: string;
+    meaning?: Array<{
+        def?: string;
+        trans?: string;
+    }>
+}
 export interface ICard {
-    def?: string;
     sound?: string;
     phonetic?: string;
+    meanings?: Array<IMeaning>;
 }
-
 export interface IDict {
     _id?: string;
     word: string;

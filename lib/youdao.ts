@@ -1,23 +1,10 @@
-import { ICard } from "./idict.ts";
+import { ICard, IMeaning } from "./idict.ts";
 
 const baseUrl = 'https://dict.youdao.com/jsonapi';
 const youdaoAudio = 'https://dict.youdao.com/dictvoice?audio='//complete&type=2
 const collinsTail = /(?<=[\.\?] )([\W; ]+?)$/;
 const replace: Record<string, string> = { '，':',', '、':',', '；':';', '（':'(', '）':')', ' ':'' };
 const refine = (o?: string) => o?.replaceAll(/([，、；（）]|(?<!\w) (?!\w))/g, m => replace[m]);
-const abbr = (partofspeech?: string) => {
-    if (!partofspeech) return '';
-    const p = partofspeech.toLowerCase()
-    if (p.startsWith('n')) return 'n.';
-    if (p.startsWith('v')) return 'v.';
-    if (p.startsWith('adj')) return 'adj.';
-    if (p.startsWith('adv')) return 'adv.';
-    if (p.startsWith('pron')) return 'pron.';
-    if (p.startsWith('prep')) return 'prep.';
-    if (p.startsWith('conj')) return 'conj.';
-    if (p.startsWith('interj')) return 'interj.';
-    return p;
-}
 
 const fillDict = async (en: string, card: ICard): Promise<ICard> => {
     const resp = await fetch(`${baseUrl}?q=${encodeURIComponent(en)}`);
@@ -41,31 +28,32 @@ const fillDict = async (en: string, card: ICard): Promise<ICard> => {
         if (!card.sound && x.usspeech) card.sound = `${youdaoAudio}${x.usspeech}`;
     }
     // Collins Dict
-    if (!card.def && root.collins?.collins_entries?.length) {
+    if (!card.meanings && root.collins?.collins_entries?.length) {
         const collinsTran = new RegExp(`<b>${en}`, 'i');
-        const ts = [];
+        const meanings: Array<IMeaning> = [];
         for (const x of root.collins.collins_entries) {
             if (x.entries?.entry?.length) for (const y of x.entries.entry) {
                 if (y.tran_entry?.length) for (const z of y.tran_entry) {
                     if ((z.headword && z.headword !== en) || z.pos_entry?.pos?.toLowerCase().includes('phrase')) continue;
                     if (z.tran?.match(collinsTran)) {
                         const m = z.tran.match(collinsTail);
-                        if (m) ts.push(`${abbr(z.pos_entry?.pos)}${refine(m[1])}`);
+                        if (m) meanings.push({pos: z.pos_entry?.pos, meaning: [{def: refine(m[1])}]});
                     }
                 }
             }
         }
-        if (ts.length) card.def = ts.join('\n');
+        if (meanings.length) card.meanings = meanings;
     }
     // Individual Dict
-    if (!card.def && root.individual?.trs?.length) {
-        const ts = [];
-        for (const x of root.individual.trs) ts.push(`${x.pos}${refine(x.tran)}`);
-        if (ts.length) card.def = ts.join('\n');
+    if (!card.meanings && root.individual?.trs?.length) {
+        const meanings: Array<IMeaning> = [];
+        for (const x of root.individual.trs) 
+            meanings.push({pos: x.pos, meaning: [{trans: refine(x.tran)}]})
+        if (meanings.length) card.meanings = meanings;
     }
     // English-Chinese Dict
     if (root.ec?.word?.length) {
-        const ts = [];
+        const mean: IMeaning = { meaning: [] };
         for (const x of root.ec?.word) {
             if (!card.phonetic && x.usphone) card.phonetic = `/${x.usphone}/`;
             if (!card.sound && x.usspeech) card.sound = `${youdaoAudio}${x.usspeech}`;
@@ -73,15 +61,13 @@ const fillDict = async (en: string, card: ICard): Promise<ICard> => {
                 if (y.tr?.length) for (const z of y.tr) {
                     if (z.l?.i?.length) for (const w of z.l.i) {
                         if (w.match(nameRegex)) continue;
-                        ts.push(refine(w));
+                        mean.meaning!.push({ trans: refine(w)} );
                     }
                 }
             }
         }
-        if (ts.length) {
-            if(card.def) card.def = `${ts.join('\n')}\n${card.def}`;
-            else card.def = ts.join('\n');
-        }
+        if (!card.meanings) card.meanings = [mean]
+        else card.meanings.unshift(mean)
     }
     return card;
 }
