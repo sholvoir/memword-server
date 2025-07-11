@@ -35,6 +35,7 @@ async function fillDict(word: string, card: ICard): Promise<ICard> {
     }
     let def = '';
     for (const entry of entries) if (entry.meanings) for (const meaning of entry.meanings) {
+        if (def) def += '\n';
         def += `${meaning.partOfSpeech}`;
         if (meaning.definitions) for (const definition of meaning.definitions)
             def += `\n    ${definition.definition}`;
