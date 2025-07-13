@@ -1,11 +1,11 @@
 import { DOMParser } from '@b-fuze/deno-dom';
 import { ICard } from "./idict.ts";
-
-const baseUrl = 'https://www.oxfordlearnersdictionaries.com/us/definition/english/';
-
+const baseUrl = 'https://www.oxfordlearnersdictionaries.com/us/search/english';
+const reqInit: RequestInit = {
+    headers: { 'User-Agent': 'Thunder Client (https://www.thunderclient.com)'}
+}
 async function fillDict(word: string, card: ICard): Promise<ICard> {
-    const reqInit = { headers: { 'User-Agent': 'Thunder Client (https://www.thunderclient.com)'} }
-    const res = await fetch(`${baseUrl}/${encodeURIComponent(word)}_1?q=${word}`, reqInit);
+    const res = await fetch(`${baseUrl}/?q=${encodeURIComponent(word)}`, reqInit);
     if (!res.ok) return card;
     const text = await res.text();
     const doc = new DOMParser().parseFromString(text, 'text/html');
