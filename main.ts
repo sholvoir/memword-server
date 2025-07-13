@@ -4,18 +4,19 @@ import { serveStatic } from 'hono/deno';
 import jwt from './mid/jwt.ts';
 import admin from './mid/admin.ts';
 
-import signup from "./pub/signup.ts";
-import signin from "./pub/signin.ts";
-import otp from "./pub/otp.ts";
-import sound from "./pub/sound.ts";
+import pub_signup from "./pub/signup.ts";
+import pub_signin from "./pub/signin.ts";
+import pub_otp from "./pub/otp.ts";
+import pub_sound from "./pub/sound.ts";
 import pub_dict from "./pub/dict.ts";
 import pub_wordlist from "./pub/wordlist.ts";
-import pub_vocabulary from "./pub/vocabulary.ts"
+import pub_vocabulary from "./pub/vocabulary.ts";
+import pub_definition from "./pub/definition.ts";
 
-import task from './auth/task.ts';
-import renew from './auth/renew.ts';
+import auth_task from './auth/task.ts';
+import auth_renew from './auth/renew.ts';
 import auth_issue from './auth/issue.ts';
-import setting from './auth/setting.ts';
+import auth_setting from './auth/setting.ts';
 import auth_wordlist from "./auth/wordlist.ts";
 
 import admin_dict from "./admin/dict.ts";
@@ -29,18 +30,19 @@ const run = async () => {
     app.use(cors());
     app.use(serveStatic({root: './static/'}));
 
-    app.route('/pub/signup', signup);
-    app.route('/pub/signin', signin);
-    app.route('/pub/otp', otp);
-    app.route('/pub/sound', sound);
+    app.route('/pub/signup', pub_signup);
+    app.route('/pub/signin', pub_signin);
+    app.route('/pub/otp', pub_otp);
+    app.route('/pub/sound', pub_sound);
     app.route('/pub/dict', pub_dict);
     app.route('/pub/wordlist', pub_wordlist);
     app.route('/pub/vocabulary', pub_vocabulary);
+    app.route('/pub/definition', pub_definition);
 
     app.use('/api/*', jwt);
-    app.route('/api/task', task);
-    app.route('/api/renew', renew);
-    app.route('/api/setting', setting);
+    app.route('/api/task', auth_task);
+    app.route('/api/renew', auth_renew);
+    app.route('/api/setting', auth_setting);
     app.route('/api/issue', auth_issue);
     app.route('/api/wordlist', auth_wordlist);
 
