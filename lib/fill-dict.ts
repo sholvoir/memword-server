@@ -13,7 +13,7 @@ const fillDict = async (word: string, card: ICard) => {
     // Oxford //if (!card.phonetic || !card.sound) 
     await oxford(word, card);
     // Google Dictionary //(!card.sound || !card.phonetic || !card.def)
-    await dictionary(word, card);
+    if (!card.meanings) await dictionary(word, card);
     // Youdao // (!card.sound || !card.phonetic || !card.def)
     await youdao(word, card);
     return card;
