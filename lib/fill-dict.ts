@@ -6,16 +6,11 @@ import websterWeb from "./webster-web.ts";
 import youdao from "./youdao.ts";
 
 const fillDict = async (word: string, card: ICard) => {
-    // Webster-api //if (!card.sound) 
-    await websterApi(word, card);
-    // Webster-web
-    if (!card.sound) await websterWeb(word, card);
-    // Oxford //if (!card.phonetic || !card.sound) 
-    await oxford(word, card);
-    // Google Dictionary //(!card.sound || !card.phonetic || !card.def)
-    if (!card.meanings) await dictionary(word, card);
-    // Youdao // (!card.sound || !card.phonetic || !card.def)
-    await youdao(word, card);
+    await dictionary(word, card); // Google Dictionary: meanings.def
+    await websterApi(word, card); // Webster-api: sound
+    if (!card.sound) await websterWeb(word, card); // Webster-web: sound
+    await oxford(word, card); // Oxford: phonetic, sound, meanings.def
+    await youdao(word, card); // Youdao: phonetic, sound, meanings.def, meanings.trans
     return card;
 }
 

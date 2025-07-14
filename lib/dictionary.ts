@@ -3,6 +3,7 @@ import { ICard, IMeaning } from "./idict.ts";
 const baseUrl = 'https://api.dictionaryapi.dev/api/v2/entries/en';
 
 async function fillDict(word: string, card: ICard): Promise<ICard> {
+    if (card.meanings) return card;
     const res = await fetch(`${baseUrl}/${encodeURIComponent(word)}`);
     if (!res.ok) return card;
     const entries = await res.json();

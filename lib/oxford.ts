@@ -12,28 +12,33 @@ export async function fillDict(word: string, card: ICard, id?: string): Promise<
     const text = await res.text();
     const doc = new DOMParser().parseFromString(text, 'text/html');
     // get sound & phonetic
-    const div = doc.querySelector('div.audio_play_button.pron-us');
-    const span = div?.nextSibling;
-    if (span?.childNodes && !card.phonetic) for (const node of span?.childNodes) {
-        if (node.nodeType == node.TEXT_NODE) {
-            card.phonetic = `${node.textContent}`;
-            break;
+    if (!card.phonetic || !card.sound) {
+        const div = doc.querySelector('div.audio_play_button.pron-us');
+        if (!card.phonetic) {
+            const nodes = div?.nextSibling?.childNodes;
+            if (nodes) for (const node of nodes) {
+                if (node.nodeType == node.TEXT_NODE) {
+                    card.phonetic = `${node.textContent}`;
+                    break;
+                }
+            }
+        }
+        if (!card.sound) {
+            const sound = div?.getAttribute('data-src-mp3');
+            if (sound) card.sound = sound;
         }
     }
-    const sound = div?.getAttribute('data-src-mp3');
-    if (sound && !card.sound) card.sound = sound;
     // get meanings
-    const pos = doc.querySelector('div.webtop')?.querySelector('span.pos')?.innerText
-    const meanings: Array<IMeaning> = [{pos, meaning: []}];
-    for (const ol of doc.querySelectorAll('ol.senses_multiple'))
-        for (const li of ol.querySelectorAll('li.sense')) {
-            const dtxt = li.querySelector('span.dis-g')?.querySelector('span.dtxt');
-            const def = li.querySelector('span.def');
-            if (def) meanings[0].meaning?.push({def: `${dtxt?`(${dtxt.innerText})`:''}${def.innerText}`});
-        }
-    if (meanings[0].meaning?.length) {
-        if (!card.meanings) card.meanings = meanings;
-        else card.meanings = [...card.meanings!, ...meanings];
+    if (!card.meanings) {
+        const pos = doc.querySelector('div.webtop')?.querySelector('span.pos')?.innerText
+        const meanings: Array<IMeaning> = [{pos, meaning: []}];
+        const ol = doc.querySelector('ol.sense_single, ol.senses_multiple')
+        if (ol) for (const li of ol.querySelectorAll('li.sense')) {
+                const dtxt = li.querySelector('span.dis-g')?.querySelector('span.dtxt');
+                const def = li.querySelector('span.def');
+                if (def) meanings[0].meaning?.push({def: `${dtxt?`(${dtxt.innerText})`:''}${def.innerText}`});
+            }
+        if (meanings[0].meaning?.length) card.meanings = meanings;
     }
     return card;
 }
@@ -41,4 +46,4 @@ export async function fillDict(word: string, card: ICard, id?: string): Promise<
 export default fillDict;
 
 if (import.meta.main) for (const word of Deno.args)
-    console.log(await fillDict(word, {}));
+    console.log(await fillDict(word, {}, word));

@@ -1,4 +1,3 @@
-// deno-lint-ignore-file no-explicit-any
 import { ICard } from "./idict.ts";
 
 const baseUrl = 'https://www.dictionaryapi.com/api/v3/references/collegiate/json';
@@ -16,11 +15,11 @@ async function fillDict(word: string, card: ICard): Promise<ICard> {
     if (card.sound) return card;
     const res = await fetch(`${baseUrl}/${encodeURIComponent(word)}?key=${key}`);
     if (!res.ok) return card;
-    const entries = await res.json() as Array<any>;
+    const entries = await res.json();
     const entry = entries[0];
     if (typeof entry === 'string') return card;
-    const pr = entry.hwi?.prs?.at(0);
-    if (pr?.sound?.audio) card.sound = `${soundBase}/${getSubdirectory(pr.sound.audio)}/${pr.sound.audio}.mp3`;
+    const audio = entry.hwi?.prs?.[0]?.sound?.audio;
+    if (audio) card.sound = `${soundBase}/${getSubdirectory(audio)}/${audio}.mp3`;
     return card;
 }
 
