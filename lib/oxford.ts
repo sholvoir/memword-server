@@ -44,7 +44,7 @@ export async function fillDict(word: string, card: ICard, id?: string): Promise<
                 if (grammar) t += grammar.innerText;
                 if (labels) t+= labels.innerText;
                 if (dtxt) t+= `(${dtxt.innerText})`;
-                if (def) meanings[0].meaning?.push({def: `${t}${def.innerText}`});
+                if (def) meanings[0].meaning?.push({def: `${t} ${def.innerText}`});
             }
         if (meanings[0].meaning?.length) card.meanings = meanings;
     }
