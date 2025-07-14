@@ -34,9 +34,17 @@ export async function fillDict(word: string, card: ICard, id?: string): Promise<
         const meanings: Array<IMeaning> = [{pos, meaning: []}];
         const ol = doc.querySelector('ol.sense_single, ol.senses_multiple')
         if (ol) for (const li of ol.querySelectorAll('li.sense')) {
+                const v = li.querySelector('.sensetop>.variants>.v-g>.v');
+                const grammar = li.querySelector('span.grammar');
+                const labels = li.querySelector('span.labels');
                 const dtxt = li.querySelector('span.dis-g')?.querySelector('span.dtxt');
                 const def = li.querySelector('span.def');
-                if (def) meanings[0].meaning?.push({def: `${dtxt?`(${dtxt.innerText})`:''}${def.innerText}`});
+                let t = '';
+                if (v) t += `<${v.innerText}> `;
+                if (grammar) t += grammar.innerText;
+                if (labels) t+= labels.innerText;
+                if (dtxt) t+= `(${dtxt.innerText})`;
+                if (def) meanings[0].meaning?.push({def: `${t}${def.innerText}`});
             }
         if (meanings[0].meaning?.length) card.meanings = meanings;
     }
