@@ -26,17 +26,17 @@ export async function fillDict(word: string, card: ICard): Promise<ICard> {
         const ol = doc.querySelector('ol.sense_single, ol.senses_multiple')
         if (ol) for (const li of ol.querySelectorAll('li.sense')) {
             const t = [];
-            const grammar = li.querySelector('span.grammar');
+            const labels = li.querySelector('span.labels');
+            if (labels) t.push(labels.textContent);
+            const grammar = li.querySelector(':scope>span.grammar');
             if (grammar) t.push(grammar.textContent);
-            const use = li.querySelector('span.use');
-            if (use) t.push(use.textContent)
-            // const labels = li.querySelector('span.labels');
-            // if (labels) t.push(`(${labels.textContent})`);
+            const use = li.querySelector(':scope>span.use');
+            if (use) t.push(use.textContent);
+            const disg = li.querySelector(':scope>span.dis-g');
+            if (disg) t.push(disg.textContent);
             // const cf = li.querySelector('span.cf')
             // if (cf) t.push(`<${cf.textContent}>`);
-            // const dtxt = li.querySelector('span.dis-g')?.querySelector('span.dtxt');
-            // if (dtxt) t.push(`(${dtxt.textContent})`);
-            const def = li.querySelector('span.def');
+            const def = li.querySelector(':scope>span.def');
             if (def) t.push(def.textContent)
             if (t.length) meaning.meaning?.push({def: t.join(' ')});
         }
