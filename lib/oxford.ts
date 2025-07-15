@@ -37,12 +37,14 @@ export async function fillDict(word: string, card: ICard, id?: string): Promise<
                 const v = li.querySelector('.sensetop>.variants>.v-g>.v');
                 const grammar = li.querySelector('span.grammar');
                 const labels = li.querySelector('span.labels');
+                const cf = li.querySelector('span.cf')
                 const dtxt = li.querySelector('span.dis-g')?.querySelector('span.dtxt');
                 const def = li.querySelector('span.def');
                 let t = '';
                 if (v) t += `<${v.innerText}> `;
                 if (grammar) t += grammar.innerText;
                 if (labels) t+= labels.innerText;
+                if (cf) t+= `<${cf.innerText}>`;
                 if (dtxt) t+= `(${dtxt.innerText})`;
                 if (def) meanings[0].meaning?.push({def: `${t} ${def.innerText}`});
             }
