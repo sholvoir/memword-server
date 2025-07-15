@@ -36,7 +36,7 @@ export async function fillDict(word: string, card: ICard): Promise<ICard> {
             if (disg) t.push(disg.textContent);
             // const cf = li.querySelector('span.cf')
             // if (cf) t.push(`<${cf.textContent}>`);
-            const def = li.querySelector(':scope>span.def');
+            const def = li.querySelector('span.def');
             if (def) t.push(def.textContent)
             if (t.length) meaning.meaning?.push({def: t.join(' ')});
         }
