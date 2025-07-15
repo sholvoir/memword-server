@@ -9,7 +9,7 @@
             "name": "Launch Program",
             "type": "node",
             "program": "${workspaceFolder}/lib/oxford.ts",
-            "args": ["panic"],
+            "args": ["consist"],
             "cwd": "${workspaceFolder}",
             "env": {},
             "runtimeExecutable": "/home/shaw/.deno/bin/deno",

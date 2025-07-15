@@ -8,7 +8,7 @@ const reqInit: RequestInit = {
 export async function fillDict(word: string, card: ICard): Promise<ICard> {
     const ids = new Set<string>();
     const phonetics = new Set<string>();
-    if (!card.meanings) card.meanings = [];
+    const meanings: Array<IMeaning> = [];
     const fill = (doc: HTMLDocument) => {
         // get sound & phonetic
         const div = doc.querySelector('div.audio_play_button.pron-us');
@@ -40,7 +40,7 @@ export async function fillDict(word: string, card: ICard): Promise<ICard> {
             if (def) t.push(def.textContent)
             if (t.length) meaning.meaning?.push({def: t.join(' ')});
         }
-        if (meaning.meaning?.length) card.meanings?.push(meaning);
+        if (meaning.meaning?.length) meanings.push(meaning);
     }
     const useIdFill = async (href: string, f: boolean) => {
         const res = await fetch(href, reqInit);
@@ -64,6 +64,10 @@ export async function fillDict(word: string, card: ICard): Promise<ICard> {
     }
     await useIdFill(`${baseUrl}/?q=${encodeURIComponent(word)}`, false);
     if (!card.phonetic) card.phonetic = Array.from(phonetics).join();
+    if (meanings.length) {
+        if (!card.meanings) card.meanings = meanings;
+        else card.meanings = [...card.meanings, ...meanings];
+    }
     return card;
 }
 
