@@ -66,8 +66,8 @@ const fillDict = async (en: string, card: ICard): Promise<ICard> => {
                 }
             }
         }
-        if (!card.meanings) card.meanings = [mean]
-        else card.meanings.unshift(mean)
+        if (!card.meanings) card.meanings = [mean];
+        else card.meanings.unshift(mean);
     }
     return card;
 }

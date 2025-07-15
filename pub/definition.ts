@@ -5,10 +5,10 @@ import fill from '../lib/oxford.ts';
 const app = new Hono();
 
 app.get(async (c) => {
-    const id = c.req.query('q');
-    if (!id) return emptyResponse(STATUS_CODE.BadRequest);
-    const card = await fill(id, {}, id);
-    console.log(`API 'definition' GET id: ${id}`);
+    const word = c.req.query('q');
+    if (!word) return emptyResponse(STATUS_CODE.BadRequest);
+    const card = await fill(word, {});
+    console.log(`API 'definition' GET id: ${word}`);
     return c.json(card);
 });
 
