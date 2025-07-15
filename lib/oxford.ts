@@ -34,10 +34,11 @@ export async function fillDict(word: string, card: ICard): Promise<ICard> {
             let t = '';
             if (v) t += `<${v.innerText}> `;
             if (grammar) t += grammar.innerText;
-            if (labels) t+= labels.innerText;
-            if (cf) t+= `<${cf.innerText}>`;
-            if (dtxt) t+= `(${dtxt.innerText})`;
-            if (def) meaning.meaning?.push({def: `${t} ${def.innerText}`});
+            if (labels) t += labels.innerText;
+            if (cf) t += `<${cf.innerText}>`;
+            if (dtxt) t += `(${dtxt.innerText})`;
+            if (t) t += ' ';
+            if (def) meaning.meaning?.push({def: `${t}${def.innerText}`});
         }
         if (meaning.meaning?.length) card.meanings?.push(meaning);
     }
