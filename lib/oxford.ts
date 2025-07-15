@@ -49,7 +49,7 @@ export async function fillDict(word: string, card: ICard): Promise<ICard> {
         const nearby = doc.querySelector('.nearby>.list-col');
         if (!nearby) return;
         for (const li of nearby.children) if (li.tagName === 'LI')
-            for (const a of li.children) if (a.tagName === 'A') {
+            for (const a of li.querySelectorAll('a')) {
                 const href = a.getAttribute('href');
                 if (!href) continue;
                 const m = regId.exec(href);
@@ -59,7 +59,7 @@ export async function fillDict(word: string, card: ICard): Promise<ICard> {
                 if (ids.has(id)) continue;
                 ids.add(id);
                 await useIdFill(href, true);
-        }
+            }
     }
     await useIdFill(`${baseUrl}/?q=${encodeURIComponent(word)}`, false);
     if (!card.phonetic) card.phonetic = Array.from(phonetics).join();
