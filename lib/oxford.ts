@@ -21,24 +21,24 @@ export async function fillDict(word: string, card: ICard): Promise<ICard> {
             if (sound) card.sound = sound;
         }
         // get meanings
-        const pos = doc.querySelector('div.webtop')?.querySelector('span.pos')?.innerText;
+        const pos = doc.querySelector('div.webtop')?.querySelector('span.pos')?.textContent;
         const meaning: IMeaning = { pos, meaning: [] };
         const ol = doc.querySelector('ol.sense_single, ol.senses_multiple')
         if (ol) for (const li of ol.querySelectorAll('li.sense')) {
-            const v = li.querySelector('.sensetop>.variants>.v-g>.v');
+            const t = [];
             const grammar = li.querySelector('span.grammar');
-            const labels = li.querySelector('span.labels');
-            const cf = li.querySelector('span.cf')
-            const dtxt = li.querySelector('span.dis-g')?.querySelector('span.dtxt');
+            if (grammar) t.push(grammar.textContent);
+            const use = li.querySelector('span.use');
+            if (use) t.push(use.textContent)
+            // const labels = li.querySelector('span.labels');
+            // if (labels) t.push(`(${labels.textContent})`);
+            // const cf = li.querySelector('span.cf')
+            // if (cf) t.push(`<${cf.textContent}>`);
+            // const dtxt = li.querySelector('span.dis-g')?.querySelector('span.dtxt');
+            // if (dtxt) t.push(`(${dtxt.textContent})`);
             const def = li.querySelector('span.def');
-            let t = '';
-            if (v) t += `<${v.innerText}> `;
-            if (grammar) t += grammar.innerText;
-            if (labels) t += labels.innerText;
-            if (cf) t += `<${cf.innerText}>`;
-            if (dtxt) t += `(${dtxt.innerText})`;
-            if (t) t += ' ';
-            if (def) meaning.meaning?.push({def: `${t}${def.innerText}`});
+            if (def) t.push(def.textContent)
+            if (t.length) meaning.meaning?.push({def: t.join(' ')});
         }
         if (meaning.meaning?.length) card.meanings?.push(meaning);
     }
