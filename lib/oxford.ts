@@ -38,7 +38,7 @@ export async function fillDict(word: string, card: ICard): Promise<ICard> {
             // if (cf) t.push(`<${cf.textContent}>`);
             if (t.length) meaning.meaning?.push({def: t.join(' ')});
         }
-        if (meaning.meaning?.length) meanings.push(meaning);
+        meanings.push(meaning);
     }
     const useIdFill = async (href: string, f: boolean) => {
         const res = await fetch(href, reqInit);
@@ -54,7 +54,14 @@ export async function fillDict(word: string, card: ICard): Promise<ICard> {
                 const m = regId.exec(href);
                 if (!m) continue;
                 const id = m[1];
-                if (id.replaceAll(/[\d_]/g, '') != word.toLowerCase()) continue;
+                let w = '';
+                B: for (const hwd of a.querySelectorAll('data.hwd'))
+                    for (const x of hwd.childNodes)
+                        if (x.nodeType == x.TEXT_NODE) {
+                            w = x.textContent.trim();
+                            break B;
+                        }
+                if (w != word) continue;
                 if (ids.has(id)) continue;
                 ids.add(id);
                 await useIdFill(href, true);
