@@ -26,13 +26,13 @@ export async function fillDict(word: string, card: ICard): Promise<ICard> {
         const ol = doc.querySelector('ol.sense_single, ol.senses_multiple')
         if (ol) for (const li of ol.querySelectorAll('li.sense')) {
             const t = [];
-            for (const labels of li.querySelectorAll(':scope>span.labels')) t.push(labels.textContent);
             for (const labels of li.querySelectorAll(':scope>.sensetop>span.labels')) t.push(labels.textContent);
+            for (const labels of li.querySelectorAll(':scope>span.labels')) t.push(labels.textContent);
             for (const grammar of li.querySelectorAll(':scope>span.grammar')) t.push(grammar.textContent);
             for (const use of li.querySelectorAll(':scope>span.use')) t.push(use.textContent);
             for (const disg of li.querySelectorAll(':scope>span.dis-g')) t.push(disg.textContent);
-            for (const def of li.querySelectorAll(':scope>span.def')) t.push(def.textContent);
             for (const def of li.querySelectorAll(':scope>.sensetop>span.def')) t.push(def.textContent);
+            for (const def of li.querySelectorAll(':scope>span.def')) t.push(def.textContent);
             // const cf = li.querySelector('span.cf')
             // if (cf) t.push(`<${cf.textContent}>`);
             if (t.length) meaning.meaning?.push({def: t.join(' ')});
@@ -53,7 +53,7 @@ export async function fillDict(word: string, card: ICard): Promise<ICard> {
                 const m = regId.exec(href);
                 if (!m) continue;
                 const id = m[1];
-                if (id.replaceAll(/[\d_]/g, '') != word) continue;
+                if (id.replaceAll(/[\d_]/g, '') != word.toLowerCase()) continue;
                 if (ids.has(id)) continue;
                 ids.add(id);
                 await useIdFill(href, true);

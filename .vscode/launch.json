@@ -9,7 +9,7 @@
             "name": "Launch Program",
             "type": "node",
             "program": "${workspaceFolder}/lib/oxford.ts",
-            "args": ["impolite"],
+            "args": ["Uranus"],
             "cwd": "${workspaceFolder}",
             "env": {},
             "runtimeExecutable": "/home/shaw/.deno/bin/deno",
