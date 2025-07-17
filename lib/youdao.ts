@@ -1,4 +1,4 @@
-import { ICard, IMeaning } from "@sholvoir/memword-common/idict";
+import { ICard, IMeanItem } from "@sholvoir/memword-common/idict";
 
 const baseUrl = 'https://dict.youdao.com/jsonapi';
 const youdaoAudio = 'https://dict.youdao.com/dictvoice?audio='//complete&type=2
@@ -30,30 +30,38 @@ const fillDict = async (en: string, card: ICard): Promise<ICard> => {
     // Collins Dict
     if (!card.meanings && root.collins?.collins_entries?.length) {
         const collinsTran = new RegExp(`<b>${en}`, 'i');
-        const meanings: Array<IMeaning> = [];
+        const meanings: Record<string, Array<IMeanItem>> = {};
         for (const x of root.collins.collins_entries) {
             if (x.entries?.entry?.length) for (const y of x.entries.entry) {
                 if (y.tran_entry?.length) for (const z of y.tran_entry) {
-                    if ((z.headword && z.headword !== en) || z.pos_entry?.pos?.toLowerCase().includes('phrase')) continue;
+                    const pos = z.pos_entry?.pos;
+                    if ((z.headword && z.headword !== en) || pos?.toLowerCase().includes('phrase')) continue;
                     if (z.tran?.match(collinsTran)) {
                         const m = z.tran.match(collinsTail);
-                        if (m) meanings.push({pos: z.pos_entry?.pos, meaning: [{def: refine(m[1])}]});
+                        if (m) {
+                            const item = {def: refine(m[1])};
+                            if (meanings[pos]) meanings[pos].push(item);
+                            else meanings[pos] = [item];
+                        }
                     }
                 }
             }
         }
-        if (meanings.length) card.meanings = meanings;
+        if (Object.keys(meanings).length) card.meanings = meanings;
     }
     // Individual Dict
     if (!card.meanings && root.individual?.trs?.length) {
-        const meanings: Array<IMeaning> = [];
-        for (const x of root.individual.trs) 
-            meanings.push({pos: x.pos, meaning: [{trans: refine(x.tran)}]})
-        if (meanings.length) card.meanings = meanings;
+        const meanings: Record<string, Array<IMeanItem>> = {};
+        for (const x of root.individual.trs) {
+            const item = {trans: refine(x.tran)};
+            if (meanings[x.pos]) meanings[x.pos].push(item);
+            else meanings[x.pos] = [item]
+        }
+        if (Object.keys(meanings).length) card.meanings = meanings;
     }
     // English-Chinese Dict
     if (root.ec?.word?.length) {
-        const mean: IMeaning = { meaning: [] };
+        const means: Array<IMeanItem> = [];
         for (const x of root.ec?.word) {
             if (!card.phonetic && x.usphone) card.phonetic = `/${x.usphone}/`;
             if (!card.sound && x.usspeech) card.sound = `${youdaoAudio}${x.usspeech}`;
@@ -61,13 +69,13 @@ const fillDict = async (en: string, card: ICard): Promise<ICard> => {
                 if (y.tr?.length) for (const z of y.tr) {
                     if (z.l?.i?.length) for (const w of z.l.i) {
                         if (w.match(nameRegex)) continue;
-                        mean.meaning!.push({ trans: refine(w)} );
+                        means.push({ trans: refine(w)} );
                     }
                 }
             }
         }
-        if (!card.meanings) card.meanings = [mean];
-        else card.meanings.unshift(mean);
+        if (!card.meanings) card.meanings = { ecdict: means };
+        else card.meanings['ecdict'] = means;
     }
     return card;
 }

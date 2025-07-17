@@ -1,4 +1,4 @@
-import { ICard, IMeaning } from "@sholvoir/memword-common/idict";
+import { ICard, IMeanItem } from "@sholvoir/memword-common/idict";
 
 const baseUrl = 'https://api.dictionaryapi.dev/api/v2/entries/en';
 
@@ -7,14 +7,15 @@ async function fillDict(word: string, card: ICard): Promise<ICard> {
     const res = await fetch(`${baseUrl}/${encodeURIComponent(word)}`);
     if (!res.ok) return card;
     const entries = await res.json();
-    const meanings: Array<IMeaning> = []
+    const meanings: Record<string, Array<IMeanItem>> = {}
     for (const entry of entries) if (entry.meanings) for (const meaning of entry.meanings) {
-        const mean: IMeaning = { pos: meaning.partOfSpeech, meaning: [] };
+        const pos = meaning.partOfSpeech as string;
+        const means: Array<IMeanItem> = [];
         if (meaning.definitions) for (const definition of meaning.definitions)
-            mean.meaning!.push({ def: definition.definition });
-        meanings.push(mean);
+            means.push({ def: definition.definition });
+        meanings[pos] = means;
     }
-    if (meanings.length) card.meanings = meanings;
+    if (Object.keys(meanings).length) card.meanings = meanings;
     return card;
 }
 

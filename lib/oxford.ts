@@ -1,5 +1,5 @@
 import { DOMParser, HTMLDocument } from '@b-fuze/deno-dom';
-import { ICard, IMeaning } from "@sholvoir/memword-common/idict";
+import { ICard, IMeanItem } from "@sholvoir/memword-common/idict";
 const baseUrl = 'https://www.oxfordlearnersdictionaries.com/us/search/english';
 const regId = new RegExp('/([\\w_+-]+)$');
 const reqInit: RequestInit = {
@@ -8,7 +8,7 @@ const reqInit: RequestInit = {
 export async function fillDict(word: string, card: ICard): Promise<ICard> {
     const ids = new Set<string>();
     const phonetics = new Set<string>();
-    const meanings: Array<IMeaning> = [];
+    const meanings: Record<string, Array<IMeanItem>> = {}
     const fill = (doc: HTMLDocument) => {
         // get sound & phonetic
         const div = doc.querySelector('div.audio_play_button.pron-us');
@@ -22,8 +22,8 @@ export async function fillDict(word: string, card: ICard): Promise<ICard> {
         }
         // get meanings
         const pos = doc.querySelector('div.webtop')?.querySelector('span.pos')?.textContent;
-        const meaning: IMeaning = { pos, meaning: [] };
-        const ol = doc.querySelector('ol.sense_single, ol.senses_multiple')
+        const means: Array<IMeanItem> = [];
+        const ol = doc.querySelector('ol.sense_single, ol.senses_multiple');
         if (ol) for (const li of ol.querySelectorAll('li.sense')) {
             const t = [];
             for (const labels of li.querySelectorAll(':scope>.sensetop>span.labels')) t.push(labels.textContent);
@@ -36,9 +36,9 @@ export async function fillDict(word: string, card: ICard): Promise<ICard> {
             for (const def of li.querySelectorAll(':scope>span.def')) t.push(def.textContent);
             // const cf = li.querySelector('span.cf')
             // if (cf) t.push(`<${cf.textContent}>`);
-            if (t.length) meaning.meaning?.push({def: t.join(' ')});
+            if (t.length) means.push({def: t.join(' ')});
         }
-        meanings.push(meaning);
+        meanings[pos!] = means;
     }
     const useIdFill = async (href: string, f: boolean) => {
         const res = await fetch(href, reqInit);
@@ -69,9 +69,9 @@ export async function fillDict(word: string, card: ICard): Promise<ICard> {
     }
     await useIdFill(`${baseUrl}/?q=${encodeURIComponent(word)}`, false);
     if (!card.phonetic) card.phonetic = Array.from(phonetics).join();
-    if (meanings.length) {
+    if (Object.keys(meanings).length) {
         if (!card.meanings) card.meanings = meanings;
-        else card.meanings = [...card.meanings, ...meanings];
+        else card.meanings = {...card.meanings, ...meanings};
     }
     return card;
 }
