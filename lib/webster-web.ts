@@ -1,4 +1,4 @@
-import { ICard } from "./idict.ts";
+import { ICard } from "@sholvoir/memword-common/idict";
 
 const baseUrl = 'https://www.merriam-webster.com/dictionary';
 const mp3Regex = new RegExp(`"contentURL": "(https://media.merriam-webster.com/audio/prons/en/us/.+?mp3)"`);

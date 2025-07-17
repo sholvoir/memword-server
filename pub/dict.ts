@@ -1,8 +1,8 @@
 import { Hono } from "hono";
 import { emptyResponse, STATUS_CODE } from '@sholvoir/generic/http';
+import { now } from "@sholvoir/memword-common/common";
 import { collectionDict } from "../lib/mongo.ts";
 import { getVocabulary } from "../lib/spell-check.ts";
-import { now } from "../lib/common.ts";
 import fill from '../lib/fill-dict.ts';
 
 const app = new Hono();

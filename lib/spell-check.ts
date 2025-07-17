@@ -1,5 +1,5 @@
 // deno-lint-ignore-file no-cond-assign
-import { B2_BASE_URL, B2_BUCKET } from "./common.ts";
+import { B2_BASE_URL, B2_BUCKET } from "@sholvoir/memword-common/common";
 import { versionpp } from "@sholvoir/generic/versionpp";
 import { minio } from "./minio.ts";
 import { collectionWordList } from "./mongo.ts";

@@ -1,9 +1,9 @@
 import { Hono } from "hono";
 import { emptyResponse, STATUS_CODE } from "@sholvoir/generic/http";
+import { maxAge } from "@sholvoir/memword-common/common";
 import { collectionUser, newTaskCollection } from "../lib/mongo.ts";
 import { twilio } from "../lib/twilio.ts";
 import { jwt } from "../lib/jwt.ts";
-import { maxAge } from "../lib/common.ts";
 
 const app = new Hono();
 

@@ -1,7 +1,7 @@
 import { Hono } from "hono";
+import { emptyResponse, STATUS_CODE } from "@sholvoir/generic/http";
 import { jwtEnv } from "../lib/env.ts";
 import { collectionIssue } from "../lib/mongo.ts";
-import { emptyResponse, STATUS_CODE } from "@sholvoir/generic/http";
 import { ObjectId } from "mongodb";
 
 const app = new Hono<jwtEnv>();

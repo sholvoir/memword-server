@@ -1,5 +1,5 @@
 import { DOMParser, HTMLDocument } from '@b-fuze/deno-dom';
-import { ICard, IMeaning } from "./idict.ts";
+import { ICard, IMeaning } from "@sholvoir/memword-common/idict";
 const baseUrl = 'https://www.oxfordlearnersdictionaries.com/us/search/english';
 const regId = new RegExp('/([\\w_+-]+)$');
 const reqInit: RequestInit = {

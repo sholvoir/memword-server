@@ -1,4 +1,4 @@
-import { IDict } from "./idict.ts";
+import { IDict } from "@sholvoir/memword-common/idict";
 
 const baseUrl = 'https://api.pexels.com/v1/search';
 const requestInit: RequestInit = { headers: new Headers({"Authorization": Deno.env.get('PEXELS_KEY')!}) };

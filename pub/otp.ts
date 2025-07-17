@@ -1,8 +1,8 @@
 import { Hono } from "hono";
 import { emptyResponse, STATUS_CODE } from '@sholvoir/generic/http';
+import { now } from "@sholvoir/memword-common/common";
 import { twilio } from "../lib/twilio.ts";
 import { collectionUser } from "../lib/mongo.ts";
-import { now } from "../lib/common.ts";
 
 const app = new Hono();
 

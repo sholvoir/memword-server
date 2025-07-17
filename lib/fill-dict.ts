@@ -1,4 +1,4 @@
-import { ICard } from "./idict.ts";
+import { ICard } from "@sholvoir/memword-common/idict";
 import dictionary from "./dictionary.ts";
 import oxford from "./oxford.ts";
 import websterApi from "./webster-api.ts";

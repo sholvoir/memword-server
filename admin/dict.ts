@@ -1,9 +1,9 @@
 import { Hono } from "hono";
 import { emptyResponse, STATUS_CODE } from '@sholvoir/generic/http';
-import { IDict } from "../lib/idict.ts";
+import { IDict } from "@sholvoir/memword-common/idict";
+import { now } from "@sholvoir/memword-common/common";
 import { jwtEnv } from "../lib/env.ts";
 import { collectionDict } from "../lib/mongo.ts";
-import { now } from "../lib/common.ts";
 
 const app = new Hono<jwtEnv>();
 

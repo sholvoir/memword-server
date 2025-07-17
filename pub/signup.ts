@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { emptyResponse, STATUS_CODE } from '@sholvoir/generic/http';
+import { newUser } from "@sholvoir/memword-common/iuser";
 import { collectionUser } from "../lib/mongo.ts";
-import { newUser } from "../lib/iuser.ts";
 
 const app = new Hono();
 

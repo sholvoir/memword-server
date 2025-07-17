@@ -1,9 +1,9 @@
 import { MongoClient, MongoClientOptions, ServerApiVersion } from 'mongodb';
-import { IDict } from "./idict.ts";
-import { IUser } from "./iuser.ts";
-import { IWordList } from "./iwordlist.ts";
-import { ITask } from "./itask.ts";
-import { IIssue } from "./iissue.ts";
+import { IDict } from "@sholvoir/memword-common/idict";
+import { IUser } from "@sholvoir/memword-common/iuser";
+import { IWordList } from "@sholvoir/memword-common/iwordlist";
+import { ITask } from "@sholvoir/memword-common/itask";
+import { IIssue } from "@sholvoir/memword-common/iissue";
 
 const options = { serverApi: {
     version: ServerApiVersion.v1,

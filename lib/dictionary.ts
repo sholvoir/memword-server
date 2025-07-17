@@ -1,4 +1,4 @@
-import { ICard, IMeaning } from "./idict.ts";
+import { ICard, IMeaning } from "@sholvoir/memword-common/idict";
 
 const baseUrl = 'https://api.dictionaryapi.dev/api/v2/entries/en';
 

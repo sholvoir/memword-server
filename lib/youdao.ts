@@ -1,4 +1,4 @@
-import { ICard, IMeaning } from "./idict.ts";
+import { ICard, IMeaning } from "@sholvoir/memword-common/idict";
 
 const baseUrl = 'https://dict.youdao.com/jsonapi';
 const youdaoAudio = 'https://dict.youdao.com/dictvoice?audio='//complete&type=2

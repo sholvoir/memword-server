@@ -1,4 +1,4 @@
-import { IDict } from "./idict.ts";
+import { IDict } from "@sholvoir/memword-common/idict";
 
 const baseUrl = 'https://pixabay.com/api/';
 const key = Deno.env.get('PIXABAY_KEY');

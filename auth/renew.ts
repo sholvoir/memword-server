@@ -1,7 +1,7 @@
 import { Hono } from "hono";
+import { maxAge } from "@sholvoir/memword-common/common";
 import { jwtEnv } from "../lib/env.ts";
 import { jwt } from "../lib/jwt.ts";
-import { maxAge } from "../lib/common.ts";
 
 const app = new Hono<jwtEnv>()
 

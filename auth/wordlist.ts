@@ -1,6 +1,6 @@
 // deno-lint-ignore-file no-cond-assign
 import { Hono } from "hono";
-import { B2_BASE_URL, B2_BUCKET } from "../lib/common.ts";
+import { B2_BASE_URL, B2_BUCKET } from "@sholvoir/memword-common/common";
 import { emptyResponse, STATUS_CODE } from "@sholvoir/generic/http";
 import { versionpp } from "@sholvoir/generic/versionpp";
 import { collectionWordList } from "../lib/mongo.ts";

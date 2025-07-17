@@ -1,7 +1,7 @@
 // deno-lint-ignore-file no-explicit-any
-import { emptyResponse, jsonResponse, STATUS_CODE } from '@sholvoir/generic/http';
 import { Int32 } from "mongodb";
-import { ITask } from "../lib/itask.ts";
+import { emptyResponse, jsonResponse, STATUS_CODE } from '@sholvoir/generic/http';
+import { ITask } from "@sholvoir/memword-common/itask";
 import { getCollectionTask } from "../lib/mongo.ts";
 import { Hono } from "hono";
 import { jwtEnv } from "../lib/env.ts";

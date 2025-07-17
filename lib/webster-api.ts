@@ -1,4 +1,4 @@
-import { ICard } from "./idict.ts";
+import { ICard } from "@sholvoir/memword-common/idict";
 
 const baseUrl = 'https://www.dictionaryapi.com/api/v3/references/collegiate/json';
 const soundBase = 'https://media.merriam-webster.com/audio/prons/en/us/mp3';
