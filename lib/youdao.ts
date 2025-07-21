@@ -75,7 +75,7 @@ const fillDict = async (en: string, card: ICard): Promise<ICard> => {
             }
         }
         if (!card.meanings) card.meanings = { ecdict: means };
-        else card.meanings['ecdict'] = means;
+        else card.meanings = {ecdict: means, ...card.meanings};
     }
     return card;
 }
