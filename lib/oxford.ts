@@ -26,7 +26,7 @@ export async function fillDict(word: string, card: ICard): Promise<ICard> {
         const ol = doc.querySelector('ol.sense_single, ol.senses_multiple');
         if (ol) for (const li of ol.querySelectorAll('li.sense')) {
             const t = [];
-            for (const sensetop of li.querySelectorAll(':scope>span.sensetop')) t.push(sensetop.textContent);
+            for (const sensetop of li.querySelectorAll(':scope>span.sensetop')) t.push(sensetop.textContent.trim());
             for (const grammar of li.querySelectorAll(':scope>span.grammar')) t.push(grammar.textContent);
             for (const cf of li.querySelectorAll(':scope>span.cf')) t.push(`(${cf.textContent})`);
             for (const labels of li.querySelectorAll(':scope>span.labels')) t.push(labels.textContent);
