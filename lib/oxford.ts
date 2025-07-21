@@ -26,16 +26,12 @@ export async function fillDict(word: string, card: ICard): Promise<ICard> {
         const ol = doc.querySelector('ol.sense_single, ol.senses_multiple');
         if (ol) for (const li of ol.querySelectorAll('li.sense')) {
             const t = [];
-            for (const grammar of li.querySelectorAll(':scope>.sensetop>span.grammar')) t.push(grammar.textContent);
+            for (const sensetop of li.querySelectorAll(':scope>span.sensetop')) t.push(sensetop.textContent);
             for (const grammar of li.querySelectorAll(':scope>span.grammar')) t.push(grammar.textContent);
-            for (const cf of li.querySelectorAll(':scope>.sensetop>span.cf')) t.push(`(${cf.textContent})`);
             for (const cf of li.querySelectorAll(':scope>span.cf')) t.push(`(${cf.textContent})`);
-            for (const labels of li.querySelectorAll(':scope>.sensetop>span.labels')) t.push(labels.textContent);
             for (const labels of li.querySelectorAll(':scope>span.labels')) t.push(labels.textContent);
             for (const use of li.querySelectorAll(':scope>span.use')) t.push(use.textContent);
-            for (const disg of li.querySelectorAll(':scope>.sensetop>span.dis-g')) t.push(disg.textContent);
             for (const disg of li.querySelectorAll(':scope>span.dis-g')) t.push(disg.textContent);
-            for (const def of li.querySelectorAll(':scope>.sensetop>span.def')) t.push(def.textContent);
             for (const def of li.querySelectorAll(':scope>span.def')) t.push(def.textContent);
             if (t.length) means.push({def: t.join(' ')});
         }
