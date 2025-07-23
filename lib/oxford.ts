@@ -34,7 +34,7 @@ export async function fillDict(word: string, card: ICard): Promise<ICard> {
             for (const use of li.querySelectorAll(':scope>span.use')) t.push(use.textContent);
             for (const disg of li.querySelectorAll(':scope>span.dis-g')) t.push(disg.textContent);
             for (const def of li.querySelectorAll(':scope>span.def')) t.push(def.textContent);
-            if (t.length) means.push({def: t.join(' ')});
+            if (t.length) means.push({def: t.join(' ').replaceAll('’', "'")});
         }
         meanings[pos!] = means;
     }
