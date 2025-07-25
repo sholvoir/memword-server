@@ -5,6 +5,7 @@ const regId = new RegExp('/([\\w_+-]+)$');
 const reqInit: RequestInit = {
     headers: { 'User-Agent': 'Thunder Client (https://www.thunderclient.com)'}
 }
+const reg = /[‘’]/g;
 export async function fillDict(word: string, card: ICard): Promise<ICard> {
     const ids = new Set<string>();
     const phonetics = new Set<string>();
@@ -34,7 +35,7 @@ export async function fillDict(word: string, card: ICard): Promise<ICard> {
             for (const use of li.querySelectorAll(':scope>span.use')) t.push(use.textContent);
             for (const disg of li.querySelectorAll(':scope>span.dis-g')) t.push(disg.textContent);
             for (const def of li.querySelectorAll(':scope>span.def')) t.push(def.textContent);
-            if (t.length) means.push({def: t.join(' ').replaceAll('’', "'")});
+            if (t.length) means.push({def: t.join(' ').replaceAll(reg, "'")});
         }
         meanings[pos!] = means;
     }
