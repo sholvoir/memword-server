@@ -33,7 +33,8 @@ app.post(async (c) => {
     await minio.putObject(B2_BUCKET, `${wlid}-${newVersion}.txt`,
         Array.from(words).sort().join('\n'), 'text/plain');
     if (wl) {
-        await collectionWordList.updateOne({ wlid }, { $set: { version: newVersion, disc } });
+        const $set = disc ? { version: newVersion, disc } : { version: newVersion };
+        await collectionWordList.updateOne({ wlid }, { $set });
         await minio.removeObject(B2_BUCKET, `${wlid}-${wl.version}.txt`);
     } else await collectionWordList.insertOne({ wlid, version: newVersion, disc });
     console.log(`API 'wordlist' POST ${username}/${wlname}, successed.`);
