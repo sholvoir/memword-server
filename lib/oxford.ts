@@ -67,6 +67,8 @@ export async function fillDict(word: string, card: ICard): Promise<ICard> {
             }
     }
     await useIdFill(`${baseUrl}/?q=${encodeURIComponent(word)}`, false);
+    if (!Object.keys(meanings).length)
+        await useIdFill(`${baseUrl}/?q=${encodeURIComponent(word)}`, true);
     if (!card.phonetic) card.phonetic = Array.from(phonetics).join();
     if (Object.keys(meanings).length) {
         if (!card.meanings) card.meanings = meanings;
