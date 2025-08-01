@@ -1,15 +1,15 @@
 import { DOMParser, HTMLDocument } from '@b-fuze/deno-dom';
-import { ICard, IMeanItem } from "@sholvoir/memword-common/idict";
+import { IEntry, IMean } from "@sholvoir/memword-common/idict";
 const baseUrl = 'https://www.oxfordlearnersdictionaries.com/us/search/english';
 const regId = new RegExp('/([\\w_+-]+)$');
 const reqInit: RequestInit = {
     headers: { 'User-Agent': 'Thunder Client (https://www.thunderclient.com)'}
 }
 const reg = /[‘’]/g;
-export async function fillDict(word: string, card: ICard): Promise<ICard> {
+export async function fillDict(word: string, entry: IEntry): Promise<IEntry> {
     const ids = new Set<string>();
     const phonetics = new Set<string>();
-    const meanings: Record<string, Array<IMeanItem>> = {}
+    const meanings: Record<string, Array<IMean>> = {}
     const fill = (doc: HTMLDocument) => {
         // get sound & phonetic
         const div = doc.querySelector('div.audio_play_button.pron-us');
@@ -17,13 +17,13 @@ export async function fillDict(word: string, card: ICard): Promise<ICard> {
         if (nodes) for (const node of nodes)
             if (node.nodeType == node.TEXT_NODE)
                 phonetics.add(node.textContent);
-        if (!card.sound) {
+        if (!entry.sound) {
             const sound = div?.getAttribute('data-src-mp3');
-            if (sound) card.sound = sound;
+            if (sound) entry.sound = sound;
         }
         // get meanings
         const pos = doc.querySelector('div.webtop')?.querySelector('span.pos')?.textContent;
-        const means: Array<IMeanItem> = [];
+        const means: Array<IMean> = [];
         const ol = doc.querySelector('ol.sense_single, ol.senses_multiple');
         if (ol) for (const li of ol.querySelectorAll('li.sense')) {
             const t = [];
@@ -69,12 +69,12 @@ export async function fillDict(word: string, card: ICard): Promise<ICard> {
     await useIdFill(`${baseUrl}/?q=${encodeURIComponent(word)}`, false);
     if (!Object.keys(meanings).length)
         await useIdFill(`${baseUrl}/?q=${encodeURIComponent(word)}`, true);
-    if (!card.phonetic) card.phonetic = Array.from(phonetics).join();
+    if (!entry.phonetic) entry.phonetic = Array.from(phonetics).join();
     if (Object.keys(meanings).length) {
-        if (!card.meanings) card.meanings = meanings;
-        else card.meanings = {...card.meanings, ...meanings};
+        if (!entry.meanings) entry.meanings = meanings;
+        else entry.meanings = {...entry.meanings, ...meanings};
     }
-    return card;
+    return entry;
 }
 
 export default fillDict;

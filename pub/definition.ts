@@ -7,9 +7,9 @@ const app = new Hono();
 app.get(async (c) => {
     const word = c.req.query('q');
     if (!word) return emptyResponse(STATUS_CODE.BadRequest);
-    const card = await fill(word, {});
+    const entry = await fill(word, {});
     console.log(`API 'definition' GET id: ${word}`);
-    return c.json(card);
+    return c.json(entry);
 });
 
 export default app;

@@ -1,7 +1,7 @@
 import { MongoClient, MongoClientOptions, ServerApiVersion } from 'mongodb';
 import { IDict } from "@sholvoir/memword-common/idict";
 import { IUser } from "@sholvoir/memword-common/iuser";
-import { IWordList } from "@sholvoir/memword-common/iwordlist";
+import { IBook } from "@sholvoir/memword-common/ibook";
 import { ITask } from "@sholvoir/memword-common/itask";
 import { IIssue } from "@sholvoir/memword-common/iissue";
 
@@ -20,7 +20,7 @@ const memwordDB = client.db('memword');
 export const collectionDict = memwordDB.collection<IDict>('dict');
 export const collectionUser = memwordDB.collection<IUser>('user');
 export const collectionIssue = memwordDB.collection<IIssue>('issue');
-export const collectionWordList = memwordDB.collection<IWordList>('wordlist');
+export const collectionBook = memwordDB.collection<IBook>('book');
 
 export const getCollectionTask = (username: string) => memwordDB.collection<ITask>(`_${username}`);
 

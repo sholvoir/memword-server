@@ -1,4 +1,4 @@
-import { ICard, IMeanItem } from "@sholvoir/memword-common/idict";
+import { IEntry, IMean } from "@sholvoir/memword-common/idict";
 
 const baseUrl = 'https://dict.youdao.com/jsonapi';
 const youdaoAudio = 'https://dict.youdao.com/dictvoice?audio='//complete&type=2
@@ -6,31 +6,31 @@ const collinsTail = /(?<=[\.\?] )([\W; ]+?)$/;
 const replace: Record<string, string> = { '，':',', '、':',', '；':';', '（':'(', '）':')', ' ':'' };
 const refine = (o?: string) => o?.replaceAll(/([，、；（）]|(?<!\w) (?!\w))/g, m => replace[m]);
 
-const fillDict = async (en: string, card: ICard): Promise<ICard> => {
+const fillDict = async (en: string, entry: IEntry): Promise<IEntry> => {
     const resp = await fetch(`${baseUrl}?q=${encodeURIComponent(en)}`);
-    if (!resp.ok) return card;
+    if (!resp.ok) return entry;
     const root = await resp.json();
     const nameRegex = new RegExp(`【名】|（人名）|（${en}）人名`, 'i');
     // Collins Primary Dict
-    if ((!card.phonetic || !card.sound) && root.collins_primary) {
+    if ((!entry.phonetic || !entry.sound) && root.collins_primary) {
         const cp = root.collins_primary;
         if (cp.words?.word === en && cp.gramcat?.length) {
             for (const gram of root.collins_primary.gramcat) {
-                if (!card.phonetic && gram.pronunciation) card.phonetic = `/${gram.pronunciation}/`;
-                if (!card.sound && gram.audiourl) card.sound = gram.audiourl;
+                if (!entry.phonetic && gram.pronunciation) entry.phonetic = `/${gram.pronunciation}/`;
+                if (!entry.sound && gram.audiourl) entry.sound = gram.audiourl;
             }
         }
     }
     // Simple Dict
-    if ((!card.phonetic || !card.sound) && root.simple?.word?.length) for (const x of root.simple?.word) {
+    if ((!entry.phonetic || !entry.sound) && root.simple?.word?.length) for (const x of root.simple?.word) {
         if (x['return-phrase'] !== en) continue;
-        if (!card.phonetic && x.usphone) card.phonetic = `/${x.usphone}/`;
-        if (!card.sound && x.usspeech) card.sound = `${youdaoAudio}${x.usspeech}`;
+        if (!entry.phonetic && x.usphone) entry.phonetic = `/${x.usphone}/`;
+        if (!entry.sound && x.usspeech) entry.sound = `${youdaoAudio}${x.usspeech}`;
     }
     // Collins Dict
-    if (!card.meanings && root.collins?.collins_entries?.length) {
+    if (!entry.meanings && root.collins?.collins_entries?.length) {
         const collinsTran = new RegExp(`<b>${en}`, 'i');
-        const meanings: Record<string, Array<IMeanItem>> = {};
+        const meanings: Record<string, Array<IMean>> = {};
         for (const x of root.collins.collins_entries) {
             if (x.entries?.entry?.length) for (const y of x.entries.entry) {
                 if (y.tran_entry?.length) for (const z of y.tran_entry) {
@@ -47,24 +47,24 @@ const fillDict = async (en: string, card: ICard): Promise<ICard> => {
                 }
             }
         }
-        if (Object.keys(meanings).length) card.meanings = meanings;
+        if (Object.keys(meanings).length) entry.meanings = meanings;
     }
     // Individual Dict
-    if (!card.meanings && root.individual?.trs?.length) {
-        const meanings: Record<string, Array<IMeanItem>> = {};
+    if (!entry.meanings && root.individual?.trs?.length) {
+        const meanings: Record<string, Array<IMean>> = {};
         for (const x of root.individual.trs) {
             const item = {trans: refine(x.tran)};
             if (meanings[x.pos]) meanings[x.pos].push(item);
             else meanings[x.pos] = [item]
         }
-        if (Object.keys(meanings).length) card.meanings = meanings;
+        if (Object.keys(meanings).length) entry.meanings = meanings;
     }
     // English-Chinese Dict
     if (root.ec?.word?.length) {
-        const means: Array<IMeanItem> = [];
+        const means: Array<IMean> = [];
         for (const x of root.ec?.word) {
-            if (!card.phonetic && x.usphone) card.phonetic = `/${x.usphone}/`;
-            if (!card.sound && x.usspeech) card.sound = `${youdaoAudio}${x.usspeech}`;
+            if (!entry.phonetic && x.usphone) entry.phonetic = `/${x.usphone}/`;
+            if (!entry.sound && x.usspeech) entry.sound = `${youdaoAudio}${x.usspeech}`;
             if (x.trs?.length) for (const y of x.trs) {
                 if (y.tr?.length) for (const z of y.tr) {
                     if (z.l?.i?.length) for (const w of z.l.i) {
@@ -74,10 +74,10 @@ const fillDict = async (en: string, card: ICard): Promise<ICard> => {
                 }
             }
         }
-        if (!card.meanings) card.meanings = { ecdict: means };
-        else card.meanings = {ecdict: means, ...card.meanings};
+        if (!entry.meanings) entry.meanings = { ecdict: means };
+        else entry.meanings = {ecdict: means, ...entry.meanings};
     }
-    return card;
+    return entry;
 }
 
 export default fillDict;

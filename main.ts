@@ -9,7 +9,7 @@ import pub_signin from "./pub/signin.ts";
 import pub_otp from "./pub/otp.ts";
 import pub_sound from "./pub/sound.ts";
 import pub_dict from "./pub/dict.ts";
-import pub_wordlist from "./pub/wordlist.ts";
+import pub_book from "./pub/book.ts";
 import pub_vocabulary from "./pub/vocabulary.ts";
 import pub_definition from "./pub/definition.ts";
 
@@ -17,7 +17,7 @@ import auth_task from './auth/task.ts';
 import auth_renew from './auth/renew.ts';
 import auth_issue from './auth/issue.ts';
 import auth_setting from './auth/setting.ts';
-import auth_wordlist from "./auth/wordlist.ts";
+import auth_book from "./auth/book.ts";
 
 import admin_dict from "./admin/dict.ts";
 import admin_issue from "./admin/issue.ts";
@@ -35,7 +35,7 @@ const run = async () => {
     app.route('/pub/otp', pub_otp);
     app.route('/pub/sound', pub_sound);
     app.route('/pub/dict', pub_dict);
-    app.route('/pub/wordlist', pub_wordlist);
+    app.route('/pub/book', pub_book);
     app.route('/pub/vocabulary', pub_vocabulary);
     app.route('/pub/definition', pub_definition);
 
@@ -44,7 +44,7 @@ const run = async () => {
     app.route('/api/renew', auth_renew);
     app.route('/api/setting', auth_setting);
     app.route('/api/issue', auth_issue);
-    app.route('/api/wordlist', auth_wordlist);
+    app.route('/api/book', auth_book);
 
     app.use('/admin/*', jwt, admin);
     app.route('/admin/dict', admin_dict);

@@ -1,12 +1,11 @@
 // deno-lint-ignore-file no-cond-assign
-import { B2_BASE_URL, B2_BUCKET } from "@sholvoir/memword-common/common";
-import { versionpp } from "@sholvoir/generic/versionpp";
+import { B2_BASE_URL, B2_BUCKET, now } from "@sholvoir/memword-common/common";
 import { minio } from "./minio.ts";
-import { collectionWordList } from "./mongo.ts";
+import { collectionBook } from "./mongo.ts";
 
-const wlid = 'system/vocabulary';
+const bid = 'system/vocabulary';
 const vocab = new Set<string>();
-let version: string | undefined;
+let version = 0;
 let added = false;
 let funcIndex = 0;
 
@@ -40,11 +39,11 @@ const scfuncs = [
 
 const update = async () => {
     added = false;
-    const newVersion = versionpp(version!);
-    await minio.putObject(B2_BUCKET, `${wlid}-${newVersion}.txt`,
+    const newVersion = now();
+    await minio.putObject(B2_BUCKET, `${bid}-${newVersion}.txt`,
         Array.from(vocab).sort().join('\n'), 'text/plain');
-    await collectionWordList.updateOne({ wlid }, { $set: { version: newVersion } });
-    await minio.removeObject(B2_BUCKET, `${wlid}-${version}.txt`);
+    await collectionBook.updateOne({ bid }, { $set: { version: newVersion } });
+    await minio.removeObject(B2_BUCKET, `${bid}-${version}.txt`);
     version = newVersion;
 }
 
@@ -56,9 +55,9 @@ export const addToVocabulary = (words: Iterable<string>) => {
 
 export const getVocabulary = async () => {
     if (vocab.size) return vocab;
-    version = (await collectionWordList.findOne({ wlid: wlid }))?.version;
-    if (!version) await collectionWordList.insertOne({ wlid: wlid, version: (version = '0.3.3') });
-    const res = await fetch(`${B2_BASE_URL}/${wlid}-${version}.txt`);
+    version = (await collectionBook.findOne({ bid }))?.version ?? 0;
+    if (!version) await collectionBook.insertOne({ bid, version });
+    const res = await fetch(`${B2_BASE_URL}/${bid}-${version}.txt`);
     if (!res.ok) throw new Error('Network Error!');
     for (let line of (await res.text()).split('\n')) if (line = line.trim()) vocab.add(line);
     return vocab;

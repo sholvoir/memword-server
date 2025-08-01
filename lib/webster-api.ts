@@ -1,4 +1,4 @@
-import { ICard } from "@sholvoir/memword-common/idict";
+import { IEntry } from "@sholvoir/memword-common/idict";
 
 const baseUrl = 'https://www.dictionaryapi.com/api/v3/references/collegiate/json';
 const soundBase = 'https://media.merriam-webster.com/audio/prons/en/us/mp3';
@@ -11,16 +11,16 @@ const getSubdirectory = (word: string) => {
     return 'number';
 }
 
-async function fillDict(word: string, card: ICard): Promise<ICard> {
-    if (card.sound) return card;
+async function fillDict(word: string, entry: IEntry): Promise<IEntry> {
+    if (entry.sound) return entry;
     const res = await fetch(`${baseUrl}/${encodeURIComponent(word)}?key=${key}`);
-    if (!res.ok) return card;
-    const entries = await res.json();
-    const entry = entries[0];
-    if (typeof entry === 'string') return card;
-    const audio = entry.hwi?.prs?.[0]?.sound?.audio;
-    if (audio) card.sound = `${soundBase}/${getSubdirectory(audio)}/${audio}.mp3`;
-    return card;
+    if (!res.ok) return entry;
+    const root = await res.json();
+    const element = root[0];
+    if (typeof element === 'string') return entry;
+    const audio = element.hwi?.prs?.[0]?.sound?.audio;
+    if (audio) entry.sound = `${soundBase}/${getSubdirectory(audio)}/${audio}.mp3`;
+    return entry;
 }
 
 export default fillDict;
