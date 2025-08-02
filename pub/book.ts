@@ -16,12 +16,8 @@ app.get(async (c) => {
     const {u, b} = c.req.param();
     const bid = `${u}/${b}`;
     console.log(`API book:${bid} GET`);
-    const v = c.req.query('v');
-    if (!v) return emptyResponse(STATUS_CODE.BadRequest);
-    const version = +v;
     const book = await collectionBook.findOne({bid: `${bid}`});
     if (!book) return emptyResponse(STATUS_CODE.NotFound);
-    if (book.version <= version) return emptyResponse(STATUS_CODE.NotModified);
     const stream = await minio.getObject(B2_BUCKET, `${book.bid}.txt`);
     return new Response(stream, { headers: { version: `${book.version}`}});
 });
