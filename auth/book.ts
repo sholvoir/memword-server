@@ -58,8 +58,8 @@ app.post(async (c) => {
     const wlname = c.req.query('name');
     if (!wlname) return emptyResponse(STATUS_CODE.BadRequest);
     const bid = `${username}/${wlname}`;
-    const wl = await collectionBook.findOne({ bid });
-    if (!wl) return emptyResponse(STATUS_CODE.NotFound);
+    const book = await collectionBook.findOne({ bid });
+    if (!book) return emptyResponse(STATUS_CODE.NotFound);
     const result = await collectionBook.deleteOne({ bid });
     if (!result.acknowledged) return c.json(result, STATUS_CODE.Conflict);
     await minio.removeObject(B2_BUCKET, `${bid}.txt`);
