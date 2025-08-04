@@ -1,5 +1,5 @@
 // deno-lint-ignore-file no-cond-assign
-import { B2_BASE_URL, B2_BUCKET, now } from "@sholvoir/memword-common/common";
+import { B2_BUCKET, now } from "@sholvoir/memword-common/common";
 import { minio } from "./minio.ts";
 import { collectionBook } from "./mongo.ts";
 
@@ -57,9 +57,9 @@ export const getVocabulary = async () => {
     if (vocab.size) return vocab;
     version = (await collectionBook.findOne({ bid }))?.version ?? 0;
     if (!version) await collectionBook.insertOne({ bid, version });
-    const res = await fetch(`${B2_BASE_URL}/${bid}-${version}.txt`);
-    if (!res.ok) throw new Error('Network Error!');
-    for (let line of (await res.text()).split('\n')) if (line = line.trim()) vocab.add(line);
+    const stream = await minio.getObject(B2_BUCKET, `${bid}.txt`);
+    const text = await new Response(stream).text()
+    for (let line of text.split('\n')) if (line = line.trim()) vocab.add(line);
     return vocab;
 }
 
