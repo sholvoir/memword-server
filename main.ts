@@ -23,12 +23,16 @@ import admin_dict from "./admin/dict.ts";
 import admin_issue from "./admin/issue.ts";
 import admin_vocabulary from "./admin/vocabulary.ts";
 
+import ecdictAsIssue from './api/ecdict-as-issue.ts';
+
 import { connect } from './lib/mongo.ts';
 
 const run = async () => {
     const app = new Hono();
     app.use(cors());
     app.use(serveStatic({root: './static/'}));
+
+    app.route('/api/v2/ecdict-as-issue', ecdictAsIssue);
 
     app.route('/pub/signup', pub_signup);
     app.route('/pub/signin', pub_signin);
@@ -39,12 +43,12 @@ const run = async () => {
     app.route('/pub/vocabulary', pub_vocabulary);
     app.route('/pub/definition', pub_definition);
 
-    app.use('/api/*', jwt);
-    app.route('/api/task', auth_task);
-    app.route('/api/renew', auth_renew);
-    app.route('/api/setting', auth_setting);
-    app.route('/api/issue', auth_issue);
-    app.route('/api/book', auth_book);
+    app.use('/api/v1/*', jwt);
+    app.route('/api/v1/task', auth_task);
+    app.route('/api/v1/renew', auth_renew);
+    app.route('/api/v1/setting', auth_setting);
+    app.route('/api/v1/issue', auth_issue);
+    app.route('/api/v1/book', auth_book);
 
     app.use('/admin/*', jwt, admin);
     app.route('/admin/dict', admin_dict);
