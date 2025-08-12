@@ -1,0 +1,19 @@
+{
+    "name": "MemWord",
+    "short_name": "MemWord",
+    "start_url": ".",
+    "display": "standalone",
+    "display_override": ["window-controls-overlay"],
+    "icons": [
+        { "src": "icon/icon-120.png", "sizes": "120x120", "type": "image/png", "purpose": "any" },
+        { "src": "icon/icon-180.png", "sizes": "180x180", "type": "image/png", "purpose": "any" },
+        { "src": "icon/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+        { "src": "icon/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+        { "src": "icon/icon-1024.png", "sizes": "1024x1024", "type": "image/png", "purpose": "any" },
+        { "src": "icon/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+        { "src": "icon/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+        { "src": "icon/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+        { "src": "icon/icon-1024.png", "sizes": "1024x1024", "type": "image/png", "purpose": "maskable" },
+        { "src": "icon/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+    ]
+}

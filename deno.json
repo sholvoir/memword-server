@@ -16,7 +16,7 @@
         ]
     },
     "tasks": {
-        "start": "deno run -A --env --watch=lib/,auth/,pub/,mid/,admin/ main.ts",
+        "start": "deno run -A --env --watch=lib/,auth/,pub/,mid/,admin/,api/,html/ main.ts",
         "server": "deno -A --env server.ts"
     }
 }
