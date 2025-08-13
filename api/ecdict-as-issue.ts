@@ -1,5 +1,6 @@
 import { Hono } from "hono";
-import jwt from '../mid/jwt.ts';
+import user from '../mid/user.ts';
+import auth from '../mid/auth.ts';
 import admin from '../mid/admin.ts';
 
 import { collectionDict, collectionIssue } from "../lib/mongo.ts";
@@ -8,7 +9,7 @@ import { InsertManyResult } from "mongodb";
 
 const app = new Hono();
 
-app.get(jwt, admin, async (c) => {
+app.get(user, auth, admin, async (c) => {
     const result: InsertManyResult<IIssue> = {
         acknowledged: true,
         insertedIds: {},
