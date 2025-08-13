@@ -1,7 +1,9 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { serveStatic } from 'hono/deno';
-import jwt from './mid/jwt.ts';
+import user from './mid/user.ts';
+import cookie from './mid/cookie.ts';
+import auth from './mid/auth.ts';
 import admin from './mid/admin.ts';
 
 import pub_signup from "./pub/signup.ts";
@@ -31,8 +33,8 @@ const run = async () => {
     const app = new Hono();
     app.use(cors());
     app.use('*', serveStatic({ root: './html/static/' }));
-    app.get('/', serveStatic({ path:'./html/index.html' }));
-    app.get('/admin', serveStatic({ path: './html/admin.html' }));
+    app.get('/', user, cookie, serveStatic({ path:'./html/index.html' }));
+    app.get('/admin', user, auth, cookie, serveStatic({ path: './html/admin.html' }));
 
     app.route('/api/v2/ecdict-as-issue', ecdictAsIssue);
 
@@ -45,14 +47,14 @@ const run = async () => {
     app.route('/pub/vocabulary', pub_vocabulary);
     app.route('/pub/definition', pub_definition);
 
-    app.use('/api/v1/*', jwt);
+    app.use('/api/v1/*', user, auth);
     app.route('/api/v1/task', auth_task);
     app.route('/api/v1/renew', auth_renew);
     app.route('/api/v1/setting', auth_setting);
     app.route('/api/v1/issue', auth_issue);
     app.route('/api/v1/book', auth_book);
 
-    app.use('/admin/*', jwt, admin);
+    app.use('/admin/*', user, auth, admin);
     app.route('/admin/dict', admin_dict);
     app.route('/admin/issue', admin_issue);
     app.route('/admin/vocabulary', admin_vocabulary);
