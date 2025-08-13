@@ -31,7 +31,6 @@ const run = async () => {
     const app = new Hono();
     app.use(cors());
     app.use('*', serveStatic({ root: './html/static/' }));
-    app.use('/assets/*', serveStatic({ root: './html/assets/' }));
     app.get('/', serveStatic({ path:'./html/index.html' }));
     app.get('/admin', serveStatic({ path: './html/admin.html' }));
 
