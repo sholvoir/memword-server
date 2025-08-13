@@ -2,9 +2,9 @@ import { Hono } from "hono";
 import { emptyResponse, STATUS_CODE } from "@sholvoir/generic/http";
 import { jwtEnv } from "../lib/env.ts";
 import { addToVocabulary, getVocabulary } from "../lib/spell-check.ts";
-import user from './mid/user.ts';
-import auth from './mid/auth.ts';
-import admin from './mid/admin.ts';
+import user from '../mid/user.ts';
+import auth from '../mid/auth.ts';
+import admin from '../mid/admin.ts';
 
 const app = new Hono<jwtEnv>();
 
