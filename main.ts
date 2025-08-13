@@ -30,10 +30,10 @@ import { connect } from './lib/mongo.ts';
 const run = async () => {
     const app = new Hono();
     app.use(cors());
-    app.use(serveStatic({root: './static/'}));
-    app.use('/assets/*', serveStatic({root: './assets/'}));
-    app.get('/', async (c) => c.html(await Deno.readTextFile('./html/index.html')));   
-    app.get('/admin', async (c) => c.html(await Deno.readTextFile('./html/admin.html'))); 
+    app.use(serveStatic({ root: './html/static/' }));
+    app.use('/assets/*', serveStatic({ root: './html/assets/' }));
+    app.get('/', serveStatic({ path:'./html/index.html' }));
+    app.get('/admin', serveStatic({ path: './html/admin.html' }));
 
     app.route('/api/v2/ecdict-as-issue', ecdictAsIssue);
 
