@@ -1,6 +1,6 @@
 {
     "lock": false,
-    "version": "0.13.5",
+    "version": "0.13.6",
     "imports": {
         "@b-fuze/deno-dom": "jsr:@b-fuze/deno-dom@^0.1.49",
         "@sholvoir/generic": "jsr:@sholvoir/generic@^0.2.6",
@@ -12,7 +12,7 @@
     },
     "lint": {
         "exclude": [
-            "static"
+            "html"
         ]
     },
     "tasks": {
