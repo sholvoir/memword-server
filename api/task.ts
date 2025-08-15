@@ -5,11 +5,13 @@ import { ITask } from "@sholvoir/memword-common/itask";
 import { getCollectionTask } from "../lib/mongo.ts";
 import { Hono } from "hono";
 import { jwtEnv } from "../lib/env.ts";
+import user from "../mid/user.ts";
+import auth from "../mid/auth.ts";
 
 const app = new Hono<jwtEnv>();
 const tasks = new Map<string, ITask>();
 
-app.post(async (c) => {
+app.post(user, auth, async (c) => {
     const username = c.get('username');
     const collectionTask = getCollectionTask(username);
     if (tasks.size == 0)
@@ -32,7 +34,7 @@ app.post(async (c) => {
     }
     console.log(`API task POST ${username} with tasks ${clientTasks.length}, return ${tasks.size}.`);
     return jsonResponse(Array.from(tasks.values().map(task=>(delete task._id, task))));
-}).delete(async (c) => {
+}).delete(user, auth, async (c) => {
     const username = c.get('username');
     const words: Array<string> = await c.req.json();
     if (!Array.isArray(words)) return emptyResponse(STATUS_CODE.BadRequest);

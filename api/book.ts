@@ -6,9 +6,25 @@ import { collectionBook } from "../lib/mongo.ts";
 import * as spellCheck from '../lib/spell-check.ts';
 import { minio } from "../lib/minio.ts";
 import { jwtEnv } from "../lib/env.ts";
+import user from "../mid/user.ts";
+import auth from "../mid/auth.ts";
 
 const app = new Hono<jwtEnv>();
-app.post(async (c) => {
+app.get(async (c) => {
+    console.log(`API book GET`);
+    const books = []
+    for await (const book of collectionBook.find())
+        books.push(book)
+    return c.json(books);
+}).get(":u/:b", async (c) => {
+    const {u, b} = c.req.param();
+    const bid = `${u}/${b}`;
+    console.log(`API book:${bid} GET`);
+    const book = await collectionBook.findOne({bid: `${bid}`});
+    if (!book) return emptyResponse(STATUS_CODE.NotFound);
+    const stream = await minio.getObject(B2_BUCKET, `${book.bid}.txt`);
+    return new Response(stream, { headers: { version: `${book.version}`}});
+}).post(user, auth, async (c) => {
     const username = c.get('username');
     const bname = c.req.query('name');
     const disc = c.req.query('disc');
@@ -33,7 +49,7 @@ app.post(async (c) => {
     else await collectionBook.insertOne(disc ? { bid, version: version, disc } : { bid, version: version });
     console.log(`API book POST ${bid}, successed.`);
     return c.json({ bid, version, disc });
-}).put(async (c) => {
+}).put(user, auth, async (c) => {
     const username = c.get('username');
     const bname = c.req.query('name');
     const disc = c.req.query('disc');
@@ -53,7 +69,7 @@ app.post(async (c) => {
     else await collectionBook.insertOne(disc ? { bid, version, disc } : { bid, version });
     console.log(`API book PUT ${bid}, successed.`);
     return c.json({ bid, version, disc });
-}).delete(async c => {
+}).delete(user, auth, async c => {
     const username = c.get('username');
     const wlname = c.req.query('name');
     if (!wlname) return emptyResponse(STATUS_CODE.BadRequest);

@@ -3,10 +3,12 @@ import { emptyResponse, STATUS_CODE } from "@sholvoir/generic/http";
 import { ISetting } from "@sholvoir/memword-common/isetting";
 import { jwtEnv } from "../lib/env.ts";
 import { collectionUser } from "../lib/mongo.ts";
+import user from "../mid/user.ts";
+import auth from "../mid/auth.ts";
 
 const app = new Hono<jwtEnv>();
 
-app.post(async (c) => {
+app.post(user, auth, async (c) => {
     const name = c.get('username');
     const user = await collectionUser.findOne({ name });
     if (!user) return emptyResponse(STATUS_CODE.NotFound);

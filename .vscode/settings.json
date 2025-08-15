@@ -1,8 +1,4 @@
 {
   "deno.enable": true,
-  "biome.enabled": false,
-  "deno.enablePaths": [
-    "./"
-  ],
-  "editor.inlayHints.enabled": "off"
+  "biome.enabled": false
 }
