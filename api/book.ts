@@ -16,14 +16,6 @@ app.get(async (c) => {
     for await (const book of collectionBook.find())
         books.push(book)
     return c.json(books);
-}).get(":u/:b", async (c) => {
-    const {u, b} = c.req.param();
-    const bid = `${u}/${b}`;
-    console.log(`API book:${bid} GET`);
-    const book = await collectionBook.findOne({bid: `${bid}`});
-    if (!book) return emptyResponse(STATUS_CODE.NotFound);
-    const stream = await minio.getObject(B2_BUCKET, `${book.bid}.txt`);
-    return new Response(stream, { headers: { version: `${book.version}`}});
 }).post(user, auth, async (c) => {
     const username = c.get('username');
     const bname = c.req.query('name');
@@ -81,6 +73,14 @@ app.get(async (c) => {
     await minio.removeObject(B2_BUCKET, `${bid}.txt`);
     console.log(`API book DELETE ${username}/${wlname}, successed.`);
     return emptyResponse();
+}).get(":u/:b", async (c) => {
+    const {u, b} = c.req.param();
+    const bid = `${u}/${b}`;
+    console.log(`API book:${bid} GET`);
+    const book = await collectionBook.findOne({bid: `${bid}`});
+    if (!book) return emptyResponse(STATUS_CODE.NotFound);
+    const stream = await minio.getObject(B2_BUCKET, `${book.bid}.txt`);
+    return new Response(stream, { headers: { version: `${book.version}`}});
 });
 
 export default app;
