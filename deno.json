@@ -1,13 +1,13 @@
 {
     "lock": false,
-    "version": "0.14.4",
+    "version": "0.14.5",
     "imports": {
         "@b-fuze/deno-dom": "jsr:@b-fuze/deno-dom@^0.1.56",
         "@sholvoir/generic": "jsr:@sholvoir/generic@^0.2.7",
         "@sholvoir/memword-common": "jsr:@sholvoir/memword-common@^0.0.8",
         "@std/http": "jsr:@std/http@^1.0.20",
         "hono": "jsr:@hono/hono@^4.9.7",
-        "minio": "npm:minio@^8.0.5",
+        "minio": "npm:minio@^8.0.6",
         "mongodb": "npm:mongodb@^6.19.0"
     },
     "lint": {
