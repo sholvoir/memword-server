@@ -17,10 +17,10 @@ app.get(user, auth, admin, async (c) => {
                 continue u;
             }
             if (entry.meanings) {
-                if (entry.meanings.ecdict) {
-                    issues.push({reporter: "hua", issue: dict.word});
-                    continue u;
-                }
+                // if (entry.meanings.ecdict) {
+                //     issues.push({reporter: "hua", issue: dict.word});
+                //     continue u;
+                // }
                 for (const meaning of Object.values(entry.meanings)) {
                     for (const mean of meaning) {
                         if (mean.trans?.includes('""')) {
