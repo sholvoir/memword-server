@@ -5,7 +5,7 @@ import { collectionBook } from "./mongo.ts";
 
 const bid = 'system/vocabulary';
 const vocab = new Set<string>();
-let version = 0;
+export let version = 0;
 let added = false;
 let funcIndex = 0;
 
@@ -40,10 +40,9 @@ const scfuncs = [
 const update = async () => {
     added = false;
     const newVersion = now();
-    await minio.putObject(B2_BUCKET, `${bid}-${newVersion}.txt`,
+    await minio.putObject(B2_BUCKET, `${bid}.txt`,
         Array.from(vocab).sort().join('\n'), 'text/plain');
     await collectionBook.updateOne({ bid }, { $set: { version: newVersion } });
-    await minio.removeObject(B2_BUCKET, `${bid}-${version}.txt`);
     version = newVersion;
 }
 
@@ -51,6 +50,12 @@ export const addToVocabulary = (words: Iterable<string>) => {
     const oldSize = vocab.size;
     for (const word of words) vocab.add(word);
     if (vocab.size > oldSize) update();
+}
+
+export const deleteFromVocabulary = (words: Iterable<string>) => {
+    const oldSize = vocab.size;
+    for (const word of words) if (vocab.has(word)) vocab.delete(word);
+    if (vocab.size < oldSize) update();
 }
 
 export const getVocabulary = async () => {
