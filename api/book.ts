@@ -19,7 +19,7 @@ app.get(async (c) => {
 }).post(user, auth, async (c) => {
     const username = c.get('username');
     const bname = c.req.query('name');
-    const disc = c.req.query('disc');
+    let disc = c.req.query('disc');
     if (!bname) return emptyResponse(STATUS_CODE.BadRequest);
     const bid = `${username}/${bname}`;
     const text = await c.req.text();
@@ -30,15 +30,17 @@ app.get(async (c) => {
         console.log(`API book POST ${bid}, spell check failed.`);
         return c.json(replaces, STATUS_CODE.NotAcceptable);
     }
-    const wl = await collectionBook.findOne({ bid });
-    if (wl) {
+    const book = await collectionBook.findOne({ bid });
+    if (book) {
+        if (!disc) disc = book.disc;
+        await collectionBook.updateOne({ bid }, { $set: book });
         const stream = await minio.getObject(B2_BUCKET, `${bid}.txt`);
         const text = await new Response(stream).text();
         for (let line of text.split('\n')) if (line = line.trim()) words.add(line);
     }
     await minio.putObject(B2_BUCKET, `${bid}.txt`, Array.from(words).sort().join('\n'), 'text/plain');
-    if (wl) await collectionBook.updateOne({ bid }, { $set: disc ? { version, disc } : { version } });
-    else await collectionBook.insertOne(disc ? { bid, version: version, disc } : { bid, version: version });
+    if (book) await collectionBook.updateOne({ bid }, { $set: { version, disc } });
+    else await collectionBook.insertOne({ bid, version, disc });
     console.log(`API book POST ${bid}, successed.`);
     return c.json({ bid, version, disc });
 }).put(user, auth, async (c) => {
