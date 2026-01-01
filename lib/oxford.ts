@@ -42,7 +42,7 @@ export async function fillDict(word: string, entry: IEntry): Promise<IEntry> {
                      continue;
                   if (s.classList.contains("sensetop"))
                      for (const d of s.children)
-                        if (d.tagName === "DIV") d.remove();
+                        if (d.tagName === "DIV" && !d.classList.contains("variants")) d.remove();
                   if (s.classList.contains("cf")) t.push(`(${s.textContent})`);
                   else t.push(s.textContent);
                } else if (s.tagName === "DIV") {
