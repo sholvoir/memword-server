@@ -34,13 +34,25 @@ export async function fillDict(word: string, entry: IEntry): Promise<IEntry> {
             const t = [];
             for (const s of li.children)
                if (s.tagName === "SPAN") {
-                  if (s.classList.contains("topic-g")) continue;
-                  for (const d of s.children)
-                     if (d.tagName === "DIV") d.remove();
+                  if (
+                     s.classList.contains("topic-g") ||
+                     s.classList.contains("un") ||
+                     s.classList.contains("xrefs")
+                  )
+                     continue;
+                  if (s.classList.contains("sensetop"))
+                     for (const d of s.children)
+                        if (d.tagName === "DIV") d.remove();
                   if (s.classList.contains("cf")) t.push(`(${s.textContent})`);
                   else t.push(s.textContent);
+               } else if (s.tagName === "DIV") {
+                  if (s.classList.contains("variants")) {
+                     if (s.textContent.startsWith("(")) t.push(s.textContent);
+                     else t.push(`(${s.textContent})`);
+                  }
                }
-            if (t.length) means.push({ def: t.join(" ").replaceAll(reg, "'") });
+            if (t.length)
+               means.push({ def: t.join(" ").replaceAll(reg, "'").trim() });
          }
       meanings[pos!] = means;
    };
