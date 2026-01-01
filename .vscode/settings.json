@@ -1,4 +1,11 @@
 {
   "deno.enable": true,
-  "biome.enabled": false
+  "biome.enabled": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports.biome": "explicit",
+    "source.fixAll.biome": "explicit"
+  },
+  "editor.tabSize": 3,
+  "editor.indentSize": "tabSize",
+  "editor.detectIndentation": true
 }
