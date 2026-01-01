@@ -7,6 +7,10 @@ const reqInit: RequestInit = {
    headers: { "User-Agent": "Thunder Client (https://www.thunderclient.com)" },
 };
 const reg = /[‘’]/g;
+const parentheses = /^[([]/;
+const addParentheses = (text: string) =>
+   parentheses.test(text) ? text : `(${text})`;
+
 export async function fillDict(word: string, entry: IEntry): Promise<IEntry> {
    const ids = new Set<string>();
    const phonetics = new Set<string>();
@@ -40,16 +44,21 @@ export async function fillDict(word: string, entry: IEntry): Promise<IEntry> {
                      s.classList.contains("xrefs")
                   )
                      continue;
-                  if (s.classList.contains("sensetop"))
+                  if (s.classList.contains("sensetop")) {
                      for (const d of s.children)
-                        if (d.tagName === "DIV" && !d.classList.contains("variants")) d.remove();
-                  if (s.classList.contains("cf")) t.push(`(${s.textContent})`);
+                        if (
+                           d.tagName === "DIV" &&
+                           !d.classList.contains("variants")
+                        )
+                           d.remove();
+                     const txt = s.textContent.trim();
+                     if (txt) t.push(addParentheses(txt));
+                  } else if (s.classList.contains("cf"))
+                     t.push(`(${s.textContent})`);
                   else t.push(s.textContent);
                } else if (s.tagName === "DIV") {
-                  if (s.classList.contains("variants")) {
-                     if (s.textContent.startsWith("(")) t.push(s.textContent);
-                     else t.push(`(${s.textContent})`);
-                  }
+                  if (s.classList.contains("variants"))
+                     t.push(addParentheses(s.textContent));
                }
             if (t.length)
                means.push({ def: t.join(" ").replaceAll(reg, "'").trim() });
