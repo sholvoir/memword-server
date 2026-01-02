@@ -36,6 +36,9 @@ export async function fillDict(word: string, entry: IEntry): Promise<IEntry> {
       if (ol)
          for (const li of ol.querySelectorAll("li.sense")) {
             const t = [];
+            const addnp = (txt: string) => {
+               if (txt) t.push(addParentheses(txt));
+            };
             for (const s of li.children)
                if (s.tagName === "SPAN") {
                   if (
@@ -45,14 +48,14 @@ export async function fillDict(word: string, entry: IEntry): Promise<IEntry> {
                   )
                      continue;
                   if (s.classList.contains("sensetop")) {
-                     for (const d of s.children)
-                        if (
-                           d.tagName === "DIV" &&
-                           !d.classList.contains("variants")
-                        )
-                           d.remove();
-                     const txt = s.textContent.trim();
-                     if (txt) t.push(addParentheses(txt));
+                     for (const d of s.children) {
+                        if (d.tagName === "SPAN") {
+                           addnp(d.textContent.trim());
+                        } else if (d.tagName === "DIV") {
+                           if (d.classList.contains("variants"))
+                              addnp(d.textContent.trim());
+                        }
+                     }
                   } else if (s.classList.contains("cf"))
                      t.push(`(${s.textContent})`);
                   else t.push(s.textContent);
