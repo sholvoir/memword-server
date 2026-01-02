@@ -28,10 +28,22 @@ export async function fillDict(word: string, entry: IEntry): Promise<IEntry> {
          if (sound) entry.sound = sound;
       }
       // get meanings
-      const pos = doc
-         .querySelector("div.webtop")
-         ?.querySelector("span.pos")?.textContent;
       const means: Array<IMean> = [];
+      const webtop = doc.querySelector("div.webtop");
+      const pos = webtop?.querySelector("span.pos")?.textContent;
+      if (webtop) {
+         const t = [];
+         for (const child of webtop.children)
+            if (
+               child.classList.contains("variants") ||
+               child.classList.contains("grammar") ||
+               child.classList.contains("labels") ||
+               child.classList.contains("inflections")
+            )
+               t.push(addParentheses(child.textContent));
+         if (t.length)
+            means.push({ def: t.join(" ").replaceAll(reg, "'").trim() });
+      }
       const ol = doc.querySelector("ol.sense_single, ol.senses_multiple");
       if (ol)
          for (const li of ol.querySelectorAll("li.sense")) {
@@ -50,7 +62,9 @@ export async function fillDict(word: string, entry: IEntry): Promise<IEntry> {
                   if (s.classList.contains("sensetop")) {
                      for (const d of s.children) {
                         if (d.tagName === "SPAN") {
-                           addnp(d.textContent.trim());
+                           if (d.classList.contains("def"))
+                              t.push(d.textContent);
+                           else addnp(d.textContent.trim());
                         } else if (d.tagName === "DIV") {
                            if (d.classList.contains("variants"))
                               addnp(d.textContent.trim());
