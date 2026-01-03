@@ -1,9 +1,9 @@
 import { emptyResponse, STATUS_CODE } from "@sholvoir/generic/http";
-import { B2_BUCKET, now } from "@sholvoir/memword-common/common";
+import { now } from "@sholvoir/memword-common/common";
 import { Hono } from "hono";
 import type { jwtEnv } from "../lib/env.ts";
-import { minio } from "../lib/minio.ts";
 import { collectionBook } from "../lib/mongo.ts";
+import { deleteObject, getObject, putObject } from "../lib/s3.ts";
 import * as spellCheck from "../lib/spell-check.ts";
 import auth from "../mid/auth.ts";
 import user from "../mid/user.ts";
@@ -33,17 +33,11 @@ app.get(async (c) => {
       if (book) {
          if (!disc) disc = book.disc;
          await collectionBook.updateOne({ bid }, { $set: book });
-         const stream = await minio.getObject(B2_BUCKET, `${bid}.txt`);
-         const text = await new Response(stream).text();
+         const text = await getObject(`${bid}.txt`);
          for (let line of text.split("\n"))
             if ((line = line.trim())) words.add(line);
       }
-      await minio.putObject(
-         B2_BUCKET,
-         `${bid}.txt`,
-         Array.from(words).sort().join("\n"),
-         "text/plain",
-      );
+      await putObject(`${bid}.txt`, Array.from(words).sort().join("\n"));
       if (book)
          await collectionBook.updateOne({ bid }, { $set: { version, disc } });
       else await collectionBook.insertOne({ bid, version, disc });
@@ -65,12 +59,7 @@ app.get(async (c) => {
          return c.json(replaces, STATUS_CODE.NotAcceptable);
       }
       const wl = await collectionBook.findOne({ bid });
-      await minio.putObject(
-         B2_BUCKET,
-         `${bid}.txt`,
-         Array.from(words).sort().join("\n"),
-         "text/plain",
-      );
+      await putObject(`${bid}.txt`, Array.from(words).sort().join("\n"));
       if (wl)
          await collectionBook.updateOne(
             { bid },
@@ -92,7 +81,7 @@ app.get(async (c) => {
       if (!book) return emptyResponse(STATUS_CODE.NotFound);
       const result = await collectionBook.deleteOne({ bid });
       if (!result.acknowledged) return c.json(result, STATUS_CODE.Conflict);
-      await minio.removeObject(B2_BUCKET, `${bid}.txt`);
+      await deleteObject(`${bid}.txt`);
       console.log(`API book DELETE ${username}/${wlname}, successed.`);
       return emptyResponse();
    })
@@ -102,8 +91,8 @@ app.get(async (c) => {
       console.log(`API book:${bid} GET`);
       const book = await collectionBook.findOne({ bid: `${bid}` });
       if (!book) return emptyResponse(STATUS_CODE.NotFound);
-      const stream = await minio.getObject(B2_BUCKET, `${book.bid}.txt`);
-      return new Response(stream, { headers: { version: `${book.version}` } });
+      const text = await getObject(`${book.bid}.txt`);
+      return new Response(text, { headers: { version: `${book.version}` } });
    });
 
 export default app;

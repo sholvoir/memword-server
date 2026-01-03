@@ -24,14 +24,14 @@ app.get(async () => {
    .post(user, auth, admin, async (c) => {
       const text = await c.req.text();
       if (!text.length) return emptyResponse(STATUS_CODE.BadRequest);
-      addToVocabulary(text.split("/n"));
+      await addToVocabulary(text.split("/n"));
       console.log(`API vocabulary POST successed`);
       return emptyResponse();
    })
    .delete(user, auth, admin, async (c) => {
       const text = await c.req.text();
       if (!text.length) return emptyResponse(STATUS_CODE.BadRequest);
-      deleteFromVocabulary(text.split("/n"));
+      await deleteFromVocabulary(text.split("/n"));
       console.log(`API vocabulary DELETE successed`);
       return emptyResponse();
    });
