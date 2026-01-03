@@ -26,7 +26,8 @@
 				"noCommaOperator": "off"
 			},
 			"suspicious": {
-				"noAssignInExpressions": "off"
+				"noAssignInExpressions": "off",
+				"noExplicitAny": "off"
 			},
 			"style": {
 				"noNonNullAssertion": "off"

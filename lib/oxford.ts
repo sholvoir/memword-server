@@ -38,7 +38,8 @@ export async function fillDict(word: string, entry: IEntry): Promise<IEntry> {
                child.classList.contains("variants") ||
                child.classList.contains("grammar") ||
                child.classList.contains("labels") ||
-               child.classList.contains("inflections")
+               child.classList.contains("inflections") ||
+               child.classList.contains("use")
             )
                t.push(addParentheses(child.textContent));
          if (t.length)
