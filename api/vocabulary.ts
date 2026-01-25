@@ -16,7 +16,7 @@ app.get(async () => {
    const [vocab, checksum] = await getVocabulary()
    return new Response(
       Array.from(vocab).sort().join("\n"),
-      { headers: { "Check-Sum": checksum } },
+      { headers: { "check-cum": checksum } },
    );
 })
    .post(user, auth, admin, async (c) => {
@@ -37,7 +37,7 @@ app.get(async () => {
       "/checksum",
       async () => {
          const [_, checksum] = await getVocabulary()
-         return new Response(null, { headers: { "Check-Sum": checksum } });
+         return new Response(null, { headers: { "check-cum": checksum } });
       },
    );
 

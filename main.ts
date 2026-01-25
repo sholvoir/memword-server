@@ -17,7 +17,9 @@ import { connect } from "./lib/mongo.ts";
 
 const run = async () => {
    const app = new Hono();
-   app.use(cors({ origin: "*", credentials: true }));
+   app.use(
+      cors({ origin: "*", credentials: true, exposeHeaders: ["check-cum"] }),
+   );
 
    app.route("/api/v2/otp", otp);
    app.route("/api/v2/dict", dict);
