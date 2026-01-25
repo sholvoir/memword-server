@@ -1,22 +1,19 @@
 {
     "lock": false,
-    "version": "0.14.20",
+    "version": "0.15.0",
     "imports": {
-        "@aws-sdk/client-s3": "npm:@aws-sdk/client-s3@^3.962.0",
+        "@aws-sdk/client-s3": "npm:@aws-sdk/client-s3@^3.975.0",
         "@b-fuze/deno-dom": "jsr:@b-fuze/deno-dom@^0.1.56",
-        "@sholvoir/generic": "jsr:@sholvoir/generic@^0.2.7",
-        "@sholvoir/memword-common": "jsr:@sholvoir/memword-common@^0.0.8",
+        "@sholvoir/generic": "jsr:@sholvoir/generic@^0.3.0",
+        "@sholvoir/memword-common": "jsr:@sholvoir/memword-common@^0.1.0",
         "@std/http": "jsr:@std/http@^1.0.23",
-        "hono": "jsr:@hono/hono@^4.11.3",
+        "hono": "jsr:@hono/hono@^4.11.5",
         "mongodb": "npm:mongodb@^6.21.0"
     },
     "lint": {
-        "exclude": [
-            "html"
-        ]
     },
     "tasks": {
-        "start": "deno run -A --env --watch=lib/,mid/,api/,html/ main.ts",
+        "start": "deno run -A --env --watch=lib/,mid/,api/ main.ts",
         "server": "deno -A --env server.ts"
     }
 }

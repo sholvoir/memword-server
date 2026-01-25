@@ -1,7 +1,7 @@
 // import { setCookie, getCookies, deleteCookie } from "@std/http";
 import { JWT } from "@sholvoir/generic/jwt";
 
-export const jwt = new JWT({ iss: 'micit.co', sub: 'memword' });
+export const jwt = new JWT({ iss: 'micinfotech.com', sub: 'memword' });
 await jwt.importKey(Deno.env.get('APP_KEY'));
 
 // const maxAge = 180 * 24 * 60 * 60;

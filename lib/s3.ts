@@ -4,7 +4,8 @@ import {
    PutObjectCommand,
    S3Client,
 } from "@aws-sdk/client-s3";
-import { B2_BUCKET } from "@sholvoir/memword-common/common";
+
+const B2_BUCKET = 'vocabulary';
 
 const s3 = new S3Client({
    endpoint: "https://s3.us-east-005.backblazeb2.com",

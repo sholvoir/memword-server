@@ -5,7 +5,6 @@ import {
    addToVocabulary,
    deleteFromVocabulary,
    getVocabulary,
-   version,
 } from "../lib/spell-check.ts";
 import admin from "../mid/admin.ts";
 import auth from "../mid/auth.ts";
@@ -14,11 +13,10 @@ import user from "../mid/user.ts";
 const app = new Hono<jwtEnv>();
 
 app.get(async () => {
+   const [vocab, checksum] = await getVocabulary()
    return new Response(
-      Array.from(await getVocabulary())
-         .sort()
-         .join("\n"),
-      { headers: { version: `${version}` } },
+      Array.from(vocab).sort().join("\n"),
+      { headers: { "Check-Sum": checksum } },
    );
 })
    .post(user, auth, admin, async (c) => {
@@ -34,6 +32,13 @@ app.get(async () => {
       await deleteFromVocabulary(text.split("/n"));
       console.log(`API vocabulary DELETE successed`);
       return emptyResponse();
-   });
+   })
+   .get(
+      "/checksum",
+      async () => {
+         const [_, checksum] = await getVocabulary()
+         return new Response(null, { headers: { "Check-Sum": checksum } });
+      },
+   );
 
 export default app;

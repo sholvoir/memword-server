@@ -1,5 +1,6 @@
+import { getHash } from "@sholvoir/generic/hash";
 import { emptyResponse, STATUS_CODE } from "@sholvoir/generic/http";
-import { now } from "@sholvoir/memword-common/common";
+import type { IBook } from "@sholvoir/memword-common/ibook";
 import { Hono } from "hono";
 import type { jwtEnv } from "../lib/env.ts";
 import { collectionBook } from "../lib/mongo.ts";
@@ -8,11 +9,33 @@ import * as spellCheck from "../lib/spell-check.ts";
 import auth from "../mid/auth.ts";
 import user from "../mid/user.ts";
 
+const vocabularyBaseUrl = "https://www.micinfotech.com/vocabulary";
+
 const app = new Hono<jwtEnv>();
-app.get(async (c) => {
+app.get(user, async (c) => {
    console.log(`API book GET`);
-   const books = [];
-   for await (const book of collectionBook.find()) books.push(book);
+   const books: Array<IBook> = [];
+   const res = await fetch(`${vocabularyBaseUrl}/checksum.json`);
+   if (!res.ok) return emptyResponse(STATUS_CODE.InternalServerError);
+   const checksums: Record<string, { disc: string; checksum: string }> =
+      await res.json();
+   for (const [bname, { disc, checksum }] of Object.entries(checksums)) {
+      const book: IBook = {
+         bid: `common/${bname}`,
+         disc,
+         checksum,
+         public: true,
+      };
+      books.push(book);
+   }
+   const username = c.get("username");
+   if (!username) return c.json(books);
+   for await (const book of collectionBook.find({
+      $or: [{ bid: { $regex: `^${username}/` } }, { public: true }],
+   })) {
+      delete (book as IBook)._id;
+      books.push(book);
+   }
    return c.json(books);
 })
    .post(user, auth, async (c) => {
@@ -23,7 +46,6 @@ app.get(async (c) => {
       const bid = `${username}/${bname}`;
       const text = await c.req.text();
       if (!text.length) return emptyResponse(STATUS_CODE.BadRequest);
-      const version = now();
       const [words, replaces] = await spellCheck.check(text.split("\n"));
       if (Object.keys(replaces).length) {
          console.log(`API book POST ${bid}, spell check failed.`);
@@ -32,17 +54,20 @@ app.get(async (c) => {
       const book = await collectionBook.findOne({ bid });
       if (book) {
          if (!disc) disc = book.disc;
-         await collectionBook.updateOne({ bid }, { $set: book });
          const text = await getObject(`${bid}.txt`);
          for (let line of text.split("\n"))
             if ((line = line.trim())) words.add(line);
       }
-      await putObject(`${bid}.txt`, Array.from(words).sort().join("\n"));
-      if (book)
-         await collectionBook.updateOne({ bid }, { $set: { version, disc } });
-      else await collectionBook.insertOne({ bid, version, disc });
+      const data = Array.from(words).sort().join("\n");
+      const checksum = await getHash(data);
+      await putObject(`${bid}.txt`, data);
+      await collectionBook.updateOne(
+         { bid },
+         { $set: { checksum, disc } },
+         { upsert: true },
+      );
       console.log(`API book POST ${bid}, successed.`);
-      return c.json({ bid, version, disc });
+      return c.json({ bid, checksum, disc });
    })
    .put(user, auth, async (c) => {
       const username = c.get("username");
@@ -52,47 +77,45 @@ app.get(async (c) => {
       const bid = `${username}/${bname}`;
       const text = await c.req.text();
       if (!text.length) return emptyResponse(STATUS_CODE.BadRequest);
-      const version = now();
       const [words, replaces] = await spellCheck.check(text.split("\n"));
       if (Object.keys(replaces).length) {
          console.log(`API book PUT ${bid}, spell check failed.`);
          return c.json(replaces, STATUS_CODE.NotAcceptable);
       }
-      const wl = await collectionBook.findOne({ bid });
-      await putObject(`${bid}.txt`, Array.from(words).sort().join("\n"));
-      if (wl)
-         await collectionBook.updateOne(
-            { bid },
-            { $set: disc ? { version, disc } : { version } },
-         );
-      else
-         await collectionBook.insertOne(
-            disc ? { bid, version, disc } : { bid, version },
-         );
+      const data = Array.from(words).sort().join("\n");
+      const checksum = await getHash(data);
+      await putObject(`${bid}.txt`, data);
+      await collectionBook.updateOne(
+         { bid },
+         { $set: disc ? { checksum, disc } : { checksum } },
+         { upsert: true },
+      );
       console.log(`API book PUT ${bid}, successed.`);
-      return c.json({ bid, version, disc });
+      return c.json({ bid, checksum, disc });
    })
    .delete(user, auth, async (c) => {
       const username = c.get("username");
-      const wlname = c.req.query("name");
-      if (!wlname) return emptyResponse(STATUS_CODE.BadRequest);
-      const bid = `${username}/${wlname}`;
+      const bname = c.req.query("name");
+      if (!bname) return emptyResponse(STATUS_CODE.BadRequest);
+      const bid = `${username}/${bname}`;
       const book = await collectionBook.findOne({ bid });
       if (!book) return emptyResponse(STATUS_CODE.NotFound);
       const result = await collectionBook.deleteOne({ bid });
       if (!result.acknowledged) return c.json(result, STATUS_CODE.Conflict);
       await deleteObject(`${bid}.txt`);
-      console.log(`API book DELETE ${username}/${wlname}, successed.`);
+      console.log(`API book DELETE ${username}/${bname}, successed.`);
       return emptyResponse();
    })
    .get(":u/:b", async (c) => {
-      const { u, b } = c.req.param();
-      const bid = `${u}/${b}`;
+      const { u: username, b: bname } = c.req.param();
+      const bid = `${username}/${bname}`;
       console.log(`API book:${bid} GET`);
+      if (username === "common")
+         return c.redirect(`${vocabularyBaseUrl}/${bname}.txt`);
       const book = await collectionBook.findOne({ bid: `${bid}` });
       if (!book) return emptyResponse(STATUS_CODE.NotFound);
       const text = await getObject(`${book.bid}.txt`);
-      return new Response(text, { headers: { version: `${book.version}` } });
+      return new Response(text, { headers: { checksum: `${book.checksum}` } });
    });
 
 export default app;

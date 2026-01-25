@@ -1,5 +1,6 @@
 {
   "deno.enable": true,
+  "deno.lint": false,
   "biome.enabled": true,
   "editor.codeActionsOnSave": {
     "source.organizeImports.biome": "explicit",

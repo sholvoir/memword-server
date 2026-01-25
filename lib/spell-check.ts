@@ -1,11 +1,9 @@
-import { now } from "@sholvoir/memword-common/common";
-import { collectionBook } from "./mongo.ts";
+import { getHash } from "@sholvoir/generic/hash";
 import { getObject, putObject } from "./s3.ts";
 
-const bid = "system/vocabulary";
+const bid = "vocabulary";
 const _vocab = new Set<string>();
-export let version = 0;
-let added = false;
+let _checksum = "";
 let funcIndex = 0;
 
 // const spliteNum = /^([A-Za-zèé /&''.-]+)(\d*)/;
@@ -66,35 +64,32 @@ const scfuncs = [
 ];
 
 const update = async () => {
-   added = false;
-   const newVersion = now();
-   await putObject(`${bid}.txt`, Array.from(_vocab).sort().join("\n"));
-   await collectionBook.updateOne({ bid }, { $set: { version: newVersion } });
-   version = newVersion;
+   const text = Array.from(_vocab).sort().join("\n");
+   await putObject(`${bid}.txt`, text);
+   _checksum = await getHash(text);
 };
 
 export const addToVocabulary = async (words: Iterable<string>) => {
-   const vocab = await getVocabulary();
+   const [vocab] = await getVocabulary();
    const oldSize = vocab.size;
    for (const word of words) vocab.add(word);
    if (vocab.size > oldSize) update();
 };
 
 export const deleteFromVocabulary = async (words: Iterable<string>) => {
-   const vocab = await getVocabulary();
+   const [vocab] = await getVocabulary();
    const oldSize = vocab.size;
    for (const word of words) if (vocab.has(word)) vocab.delete(word);
    if (vocab.size < oldSize) update();
 };
 
 export const getVocabulary = async () => {
-   if (_vocab.size) return _vocab;
-   version = (await collectionBook.findOne({ bid }))?.version ?? 0;
-   if (!version) await collectionBook.insertOne({ bid, version });
+   if (_vocab.size) return [_vocab, _checksum] as const;
    const text = await getObject(`${bid}.txt`);
-   for (let line of text.split("\n"))
-      if ((line = line.trim())) _vocab.add(line);
-   return _vocab;
+   _checksum = await getHash(text);
+   for (let word of text.split("\n"))
+      if ((word = word.trim())) _vocab.add(word);
+   return [_vocab, _checksum] as const;
 };
 
 export const check = async (
@@ -102,9 +97,10 @@ export const check = async (
 ): Promise<[Set<string>, Record<string, Array<string>>]> => {
    const words = new Set<string>();
    const replaces: Record<string, Array<string>> = {};
-   const vocab = await getVocabulary();
+   const [vocab] = await getVocabulary();
+   let added = false;
    A: for (let word of lines)
-      if ((word = word.trim())) {
+      if (word = word.trim()) {
          if (vocab.has(word)) {
             words.add(word);
             continue;

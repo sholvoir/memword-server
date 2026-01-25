@@ -1,13 +1,13 @@
-import { MiddlewareHandler } from "hono/types";
 import { emptyResponse, STATUS_CODE } from "@sholvoir/generic/http";
-import { jwtEnv } from "../lib/env.ts";
+import type { MiddlewareHandler } from "hono/types";
+import type { jwtEnv } from "../lib/env.ts";
 
-const admin = Deno.env.get('ADMIN')!;
+const admin = Deno.env.get("ADMIN")!;
 
 const m: MiddlewareHandler<jwtEnv> = async (ctx, next) => {
-    const username = ctx.get('username');
-    if (username !== admin) return emptyResponse(STATUS_CODE.Unauthorized)
-    await next();
-}
+   const username = ctx.get("username");
+   if (username !== admin) return emptyResponse(STATUS_CODE.Unauthorized);
+   await next();
+};
 
 export default m;
