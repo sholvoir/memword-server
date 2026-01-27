@@ -8,7 +8,6 @@ import { collectionDict } from "../lib/mongo.ts";
 import { getVocabulary } from "../lib/spell-check.ts";
 import admin from "../mid/admin.ts";
 import auth from "../mid/auth.ts";
-import user from "../mid/user.ts";
 
 const app = new Hono<jwtEnv>();
 
@@ -26,7 +25,7 @@ app.get(async (c) => {
    console.log(`API 'dict' GET word: ${word}`);
    return c.json(ndict);
 })
-   .put(user, auth, admin, async (c) => {
+   .put(auth, admin, async (c) => {
       const clientDict = (await c.req.json()) as IDict;
       if (!clientDict) return emptyResponse(STATUS_CODE.BadRequest);
       delete clientDict._id;
@@ -41,7 +40,7 @@ app.get(async (c) => {
       console.log(`API dict PUT ${clientDict.word}`);
       return emptyResponse();
    })
-   .delete(user, auth, admin, async (c) => {
+   .delete(auth, admin, async (c) => {
       const word = c.req.query("q");
       if (!word) return emptyResponse(STATUS_CODE.BadRequest);
       const result = await collectionDict.deleteOne({ word });

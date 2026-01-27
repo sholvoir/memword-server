@@ -1,12 +1,27 @@
-import { MiddlewareHandler } from "hono/types";
-import { jwtEnv } from "../lib/env.ts";
-import { emptyResponse } from "@sholvoir/generic/http";
-import { STATUS_CODE } from "@sholvoir/generic/http";
+import { emptyResponse, STATUS_CODE } from "@sholvoir/generic/http";
+import { getCookie } from "hono/cookie";
+import type { MiddlewareHandler } from "hono/types";
+import type { jwtEnv } from "../lib/env.ts";
+import { jwt } from "../lib/jwt.ts";
 
-const m: MiddlewareHandler<jwtEnv> = async (c, next) => {
-    const username = c.get('username');
-    if (!username) return emptyResponse(STATUS_CODE.Unauthorized);
-    await next();
-}
+const auth: MiddlewareHandler<jwtEnv> = async (c, next) => {
+   const token =
+      c.req.query("auth") ||
+      getCookie(c, "auth") ||
+      c.req
+         .header("Authorization")
+         ?.match(/Bearer (.*)/)
+         ?.at(1);
 
-export default m;
+   let username = "";
+   if (token)
+      try {
+         const payload = await jwt.verifyToken(token);
+         if (payload) username = payload.aud as string;
+      } catch {}
+   if (username) c.set("username", username);
+   else return emptyResponse(STATUS_CODE.Unauthorized);
+   await next();
+};
+
+export default auth;

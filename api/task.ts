@@ -1,6 +1,3 @@
-// deno-lint-ignore-file no-explicit-any
-/** biome-ignore-all lint/suspicious/noExplicitAny: <no reason> */
-
 import {
    emptyResponse,
    jsonResponse,
@@ -12,11 +9,10 @@ import { Int32 } from "mongodb";
 import type { jwtEnv } from "../lib/env.ts";
 import { getCollectionTask } from "../lib/mongo.ts";
 import auth from "../mid/auth.ts";
-import user from "../mid/user.ts";
 
 const app = new Hono<jwtEnv>();
 
-app.post(user, auth, async (c) => {
+app.post(auth, async (c) => {
    const username = c.get("username");
    const clientTasks: Array<ITask> = await c.req.json();
    if (!clientTasks || !Array.isArray(clientTasks))
@@ -52,7 +48,7 @@ app.post(user, auth, async (c) => {
       Array.from(serverTasks.values().map((task) => (delete task._id, task))),
    );
 })
-   .delete(user, auth, async (c) => {
+   .delete(auth, async (c) => {
       const username = c.get("username");
       const words: Array<string> = await c.req.json();
       if (!words || !Array.isArray(words))
@@ -66,7 +62,7 @@ app.post(user, auth, async (c) => {
       );
       return jsonResponse(deleteResult);
    })
-   .put(user, auth, async (c) => {
+   .put(auth, async (c) => {
       const username = c.get("username");
       const ctask: ITask = await c.req.json();
       if (!ctask) return emptyResponse(STATUS_CODE.BadRequest);

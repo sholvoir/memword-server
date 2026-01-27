@@ -7,27 +7,11 @@ import { collectionBook } from "../lib/mongo.ts";
 import { deleteObject, getObject, putObject } from "../lib/s3.ts";
 import * as spellCheck from "../lib/spell-check.ts";
 import auth from "../mid/auth.ts";
-import user from "../mid/user.ts";
-
-const vocabularyBaseUrl = "https://www.micinfotech.com/vocabulary";
 
 const app = new Hono<jwtEnv>();
-app.get(user, async (c) => {
+app.get(auth, async (c) => {
    console.log(`API book GET`);
    const books: Array<IBook> = [];
-   const res = await fetch(`${vocabularyBaseUrl}/checksum.json`);
-   if (!res.ok) return emptyResponse(STATUS_CODE.InternalServerError);
-   const checksums: Record<string, { disc: string; checksum: string }> =
-      await res.json();
-   for (const [bname, { disc, checksum }] of Object.entries(checksums)) {
-      const book: IBook = {
-         bid: `common/${bname}`,
-         disc,
-         checksum,
-         public: true,
-      };
-      books.push(book);
-   }
    const username = c.get("username");
    if (!username) return c.json(books);
    for await (const book of collectionBook.find({
@@ -38,7 +22,7 @@ app.get(user, async (c) => {
    }
    return c.json(books);
 })
-   .post(user, auth, async (c) => {
+   .post(auth, async (c) => {
       const username = c.get("username");
       const bname = c.req.query("name");
       let disc = c.req.query("disc");
@@ -69,7 +53,7 @@ app.get(user, async (c) => {
       console.log(`API book POST ${bid}, successed.`);
       return c.json({ bid, checksum, disc });
    })
-   .put(user, auth, async (c) => {
+   .put(auth, async (c) => {
       const username = c.get("username");
       const bname = c.req.query("name");
       const disc = c.req.query("disc");
@@ -93,7 +77,7 @@ app.get(user, async (c) => {
       console.log(`API book PUT ${bid}, successed.`);
       return c.json({ bid, checksum, disc });
    })
-   .delete(user, auth, async (c) => {
+   .delete(auth, async (c) => {
       const username = c.get("username");
       const bname = c.req.query("name");
       if (!bname) return emptyResponse(STATUS_CODE.BadRequest);
@@ -106,16 +90,20 @@ app.get(user, async (c) => {
       console.log(`API book DELETE ${username}/${bname}, successed.`);
       return emptyResponse();
    })
-   .get(":u/:b", async (c) => {
-      const { u: username, b: bname } = c.req.param();
-      const bid = `${username}/${bname}`;
+   .get(":u/:b", auth, async (c) => {
+      const username = c.get("username");
+      const { u: uname, b: bname } = c.req.param();
+      const bid = `${uname}/${bname}`;
       console.log(`API book:${bid} GET`);
-      if (username === "common")
-         return c.redirect(`${vocabularyBaseUrl}/${bname}.txt`);
       const book = await collectionBook.findOne({ bid: `${bid}` });
       if (!book) return emptyResponse(STATUS_CODE.NotFound);
-      const text = await getObject(`${book.bid}.txt`);
-      return new Response(text, { headers: { checksum: `${book.checksum}` } });
+      if (username === uname || book.public) {
+         const text = await getObject(`${book.bid}.txt`);
+         return new Response(text, {
+            headers: { checksum: `${book.checksum}` },
+         });
+      }
+      return emptyResponse(STATUS_CODE.Forbidden);
    });
 
 export default app;
