@@ -1,13 +1,13 @@
 {
     "lock": false,
-    "version": "0.15.3",
+    "version": "0.15.4",
     "imports": {
         "@aws-sdk/client-s3": "npm:@aws-sdk/client-s3@^3.975.0",
         "@b-fuze/deno-dom": "jsr:@b-fuze/deno-dom@^0.1.56",
         "@sholvoir/generic": "jsr:@sholvoir/generic@^0.3.0",
         "@sholvoir/memword-common": "jsr:@sholvoir/memword-common@^0.1.0",
         "@std/http": "jsr:@std/http@^1.0.23",
-        "hono": "jsr:@hono/hono@^4.11.6",
+        "hono": "jsr:@hono/hono@^4.11.7",
         "mongodb": "npm:mongodb@^6.21.0"
     },
     "lint": {
