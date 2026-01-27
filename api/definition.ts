@@ -7,9 +7,9 @@ const app = new Hono();
 app.get(async (c) => {
    const word = c.req.query("q");
    if (!word) return emptyResponse(STATUS_CODE.BadRequest);
-   const entry = await getDict(word);
+   const dict = await getDict(word);
    console.log(`API 'definition' GET id: ${word}`);
-   return c.json(entry);
+   return c.json(dict?.entries?.[0]);
 });
 
 export default app;

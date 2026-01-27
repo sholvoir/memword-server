@@ -2,6 +2,7 @@ import { now } from "@sholvoir/memword-common/common";
 import type { IDict, IEntry, IMean } from "@sholvoir/memword-common/idict";
 
 const baseUrl = "https://dict.micinfotech.com/?q=";
+//const baseUrl = "http://localhost:8080/?q=";
 const collinsTail = /(?<=[.?] )([\W; ]+?)$/;
 const replace: Record<string, string> = {
    "，": ",",
@@ -13,6 +14,33 @@ const replace: Record<string, string> = {
 };
 const refine = (o?: string) =>
    o?.replaceAll(/([，、；（）]|(?<!\w) (?!\w))/g, (m) => replace[m]);
+
+interface IInflection {
+   label: string;
+   inflected: Array<string>;
+}
+
+const variantsToString = (
+   variants: Array<{ spec?: string; labels?: Array<string>; v?: string }>,
+) => {
+   const variantsStr = [];
+   for (const variant of variants) {
+      if (variant.spec) variantsStr.push(variant.spec);
+      if (variant.labels) variantsStr.push(variant.labels.join(", "));
+      if (variant.v) variantsStr.push(`**${variant.v}**`);
+   }
+   return variantsStr.join(" ");
+};
+
+const inflectionsToString = (inflections: Array<IInflection>) => {
+   const inflectionsStr = [];
+   for (const inflection of inflections) {
+      inflectionsStr.push(
+         `${inflection.label} ${inflection.inflected.map((i) => `**${i}**`).join(", ")}`,
+      );
+   }
+   return inflectionsStr.join(" ");
+};
 
 export const getDict = async (word: string) => {
    const res = await fetch(`${baseUrl}${encodeURIComponent(word)}`);
@@ -44,26 +72,13 @@ export const getDict = async (word: string) => {
             const pos = element.pos ?? "unkown";
             const means: Array<IMean> = [];
             const webtop = [];
-            if (element.variants) {
-               const variants = [];
-               if (element.variants.spec) variants.push(element.variants.spec);
-               if (element.variants.labels)
-                  variants.push(element.variants.labels);
-               if (element.variants.v) variants.push(element.variants.v);
-               webtop.push(`(${variants.join(" ")})`);
-            }
+            if (element.variants)
+               webtop.push(`(${variantsToString(element.variants)})`);
             if (element.labels) webtop.push(`(${element.labels.join(",")})`);
             if (element.use) webtop.push(element.use);
             if (element.grammar) webtop.push(`(${element.grammar})`);
-            if (element.inflections) {
-               const inflections = [];
-               for (const inflection of element.inflections) {
-                  inflections.push(
-                     `${inflection.label} ${inflection.inflected ?? ""}`,
-                  );
-               }
-               webtop.push(`(${inflections.join(" ")})`);
-            }
+            if (element.inflections)
+               webtop.push(`(${inflectionsToString(element.inflections)})`);
             if (element.def) webtop.push(element.def);
             if (webtop.length) means.push({ def: webtop.join(" ") });
             for (const sense of element.senses) {
@@ -93,7 +108,7 @@ export const getDict = async (word: string) => {
                }
                if (sense.def) mean.push(sense.def);
                if (sense.xrefs) mean.push(` (${sense.xrefs.join()})`);
-               means.push({ def: mean.join() });
+               means.push({ def: mean.join(" ") });
             }
             entry.meanings![pos] = means;
          }

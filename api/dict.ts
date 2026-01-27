@@ -16,7 +16,10 @@ app.get(async (c) => {
    const word = c.req.query("q");
    if (!word) return emptyResponse(STATUS_CODE.BadRequest);
    const dict = await collectionDict.findOne({ word });
-   if (dict) return c.json(dict);
+   if (dict) {
+      console.log(`API 'dict' GET word: ${word} (cached)`);
+      return c.json(dict);
+   }
    const ndict = await getDict(word);
    const [vocab] = await getVocabulary();
    if (vocab.has(word)) await collectionDict.insertOne(ndict!);
