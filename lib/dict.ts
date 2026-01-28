@@ -75,9 +75,9 @@ export const getDict = async (word: string) => {
             const webtop = [];
             if (element.variants)
                webtop.push(`(${variantsToString(element.variants)})`);
-            if (element.labels) webtop.push(`(${element.labels.join(",")})`);
+            if (element.labels) webtop.push(`*(${element.labels.join(",")})*`);
             if (element.use) webtop.push(element.use);
-            if (element.grammar) webtop.push(`(${element.grammar})`);
+            if (element.grammar) webtop.push(element.grammar);
             if (element.inflections)
                webtop.push(`(${inflectionsToString(element.inflections)})`);
             if (element.def) webtop.push(element.def);
@@ -85,10 +85,10 @@ export const getDict = async (word: string) => {
             for (const sense of element.senses) {
                const mean = [];
                if (sense.shcut) mean.push(`(${sense.shcut})`);
-               if (sense.cf) mean.push(`(${sense.cf})`);
-               if (sense.disg) mean.push(`(${sense.disg})`);
                if (sense.grammar) mean.push(sense.grammar);
-               if (sense.labels) mean.push(`(${sense.labels.join(",")})`);
+               if (sense.cf) mean.push(`**${sense.cf}**`);
+               if (sense.disg) mean.push(sense.disg);
+               if (sense.labels) mean.push(`*(${sense.labels.join(",")})*`);
                if (sense.use) mean.push(sense.use);
                if (sense.inflections) {
                   const inflections = [];
