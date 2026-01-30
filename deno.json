@@ -1,6 +1,6 @@
 {
     "lock": false,
-    "version": "0.16.5",
+    "version": "0.16.6",
     "imports": {
         "@aws-sdk/client-s3": "npm:@aws-sdk/client-s3@^3.978.0",
         "@b-fuze/deno-dom": "jsr:@b-fuze/deno-dom@^0.1.56",

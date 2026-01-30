@@ -102,11 +102,11 @@ export const getDict = async (word: string) => {
                   mean.push(
                      sense.cf.map((c: string) => `**${c}**`).join(" | "),
                   );
+               if (sense.inflections)
+                  mean.push(`(${inflectionsToString(sense.inflections)})`);
                if (sense.labels) mean.push(`*(${sense.labels.join(", ")})*`);
                if (sense.disg) mean.push(sense.disg);
                if (sense.use) mean.push(sense.use);
-               if (sense.inflections)
-                  mean.push(`(${inflectionsToString(sense.inflections)})`);
                if (sense.def) mean.push(sense.def);
                if (sense.xrefs)
                   mean.push(
