@@ -11,11 +11,9 @@ import auth from "../mid/auth.ts";
 
 const app = new Hono<jwtEnv>();
 
-app.get(async () => {
+app.get(async (c) => {
    const [vocab, checksum] = await getVocabulary();
-   return new Response(Array.from(vocab).sort().join("\n"), {
-      headers: { "check-cum": checksum },
-   });
+   return c.json({ words: Array.from(vocab).sort(), checksum });
 })
    .post(auth, admin, async (c) => {
       const text = await c.req.text();
@@ -31,9 +29,9 @@ app.get(async () => {
       console.log(`API vocabulary DELETE successed`);
       return emptyResponse();
    })
-   .get("/checksum", async () => {
+   .get("/checksum", async (c) => {
       const [_, checksum] = await getVocabulary();
-      return new Response(null, { headers: { "check-cum": checksum } });
+      return c.json({ checksum });
    });
 
 export default app;
