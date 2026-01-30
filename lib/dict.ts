@@ -22,15 +22,22 @@ interface IInflection {
 }
 
 const variantToString = (
-   variants: Array<{ spec?: string; labels?: Array<string>; v?: string }>,
+   variants: Array<{
+      spec?: string;
+      labels?: string[];
+      v?: string;
+      grammar?: string;
+   }>,
 ) => {
+   if (variants.length === 1 && variants[0].v) return `**${variants[0].v}**`;
    const variantsStr = [];
    for (const variant of variants) {
       if (variant.spec) variantsStr.push(variant.spec);
       if (variant.labels) variantsStr.push(variant.labels.join(", "));
       if (variant.v) variantsStr.push(`**${variant.v}**`);
+      if (variant.grammar) variantsStr.push(variant.grammar);
    }
-   return variantsStr.join(" ");
+   return `*(${variantsStr.join(" ")})*`;
 };
 
 const inflectionsToString = (inflections: Array<IInflection>) => {
@@ -77,9 +84,9 @@ export const getDict = async (word: string) => {
                for (const variant of element.variants) {
                   webtop.push(variantToString(variant));
                }
-            if (element.labels) webtop.push(`*(${element.labels.join(",")})*`);
-            if (element.use) webtop.push(element.use);
             if (element.grammar) webtop.push(element.grammar);
+            if (element.labels) webtop.push(`*(${element.labels.join(", ")})*`);
+            if (element.use) webtop.push(element.use);
             if (element.inflections)
                webtop.push(`(${inflectionsToString(element.inflections)})`);
             if (element.def) webtop.push(element.def);
@@ -88,15 +95,14 @@ export const getDict = async (word: string) => {
                const mean = [];
                if (sense.shcut) mean.push(`(${sense.shcut})`);
                if (sense.variants)
-                  for (const variant of sense.variants) {
+                  for (const variant of sense.variants)
                      mean.push(variantToString(variant));
-                  }
                if (sense.grammar) mean.push(sense.grammar);
                if (sense.cf)
                   mean.push(
                      sense.cf.map((c: string) => `**${c}**`).join(" | "),
                   );
-               if (sense.labels) mean.push(`*(${sense.labels.join(",")})*`);
+               if (sense.labels) mean.push(`*(${sense.labels.join(", ")})*`);
                if (sense.disg) mean.push(sense.disg);
                if (sense.use) mean.push(sense.use);
                if (sense.inflections)
