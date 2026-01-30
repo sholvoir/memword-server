@@ -108,7 +108,12 @@ export const getDict = async (word: string) => {
                if (sense.inflections)
                   mean.push(`(${inflectionsToString(sense.inflections)})`);
                if (sense.def) mean.push(sense.def);
-               if (sense.xrefs) mean.push(` (${sense.xrefs.join()})`);
+               if (sense.xrefs)
+                  mean.push(
+                     sense.xrefs
+                        .map((xref: any) => `${xref.prefix} **${xref.ref}**`)
+                        .join(),
+                  );
                means.push({ def: mean.join(" ") });
             }
             entry.meanings![pos] = means;
