@@ -2,8 +2,8 @@ import { now } from "@sholvoir/memword-common/common";
 import type { IDict, IEntry, IMean } from "@sholvoir/memword-common/idict";
 
 const baseUrl = Deno.env.get("DEBUG")
-   ? "http://localhost:8080/?q="
-   : "https://dict.micinfotech.com/?q=";
+   ? "http://localhost:8080/api/v1/dict?q="
+   : "https://dict.micinfotech.com/api/v1/dict?q=";
 const collinsTail = /(?<=[.?] )([\W; ]+?)$/;
 const replace: Record<string, string> = {
    "，": ",",
