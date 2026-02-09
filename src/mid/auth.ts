@@ -5,6 +5,11 @@ import type { jwtEnv } from "../lib/env.ts";
 import { jwt } from "../lib/jwt.ts";
 
 const auth: MiddlewareHandler<jwtEnv> = async (c, next) => {
+   if (Deno.env.get("DEBUG")) {
+      c.set("username", "hua");
+      await next();
+      return;
+   }
    const token =
       c.req.query("auth") ||
       getCookie(c, "auth") ||
@@ -18,7 +23,9 @@ const auth: MiddlewareHandler<jwtEnv> = async (c, next) => {
       try {
          const payload = await jwt.verifyToken(token);
          if (payload) username = payload.aud as string;
-      } catch {}
+      } catch {
+         // ignore
+      }
    if (username) c.set("username", username);
    else return emptyResponse(STATUS_CODE.Unauthorized);
    await next();

@@ -1,5 +1,5 @@
-import { maxAge } from "@sholvoir/memword-common/common";
 import { Hono } from "hono";
+import { maxAge } from "../lib/common.ts";
 import type { jwtEnv } from "../lib/env.ts";
 import { jwt } from "../lib/jwt.ts";
 import auth from "../mid/auth.ts";

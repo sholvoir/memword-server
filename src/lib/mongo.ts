@@ -1,9 +1,8 @@
-import type { IBook } from "@sholvoir/memword-common/ibook";
-import type { IDict } from "@sholvoir/memword-common/idict";
-import type { IIssue } from "@sholvoir/memword-common/iissue";
-import type { ITask } from "@sholvoir/memword-common/itask";
-import type { IUser } from "@sholvoir/memword-common/iuser";
 import { MongoClient, ServerApiVersion } from "mongodb";
+import type { IBook } from "./ibook.ts";
+import type { IIssue } from "./iissue.ts";
+import type { ITask } from "./itask.ts";
+import type { IUser } from "./iuser.ts";
 
 type kv = { key: string; value: string };
 
@@ -21,7 +20,6 @@ export const close = () => client.close();
 const memwordDB = client.db("memword");
 
 export const collectionSys = memwordDB.collection<kv>("sys");
-export const collectionDict = memwordDB.collection<IDict>("dict");
 export const collectionUser = memwordDB.collection<IUser>("user");
 export const collectionIssue = memwordDB.collection<IIssue>("issue");
 export const collectionBook = memwordDB.collection<IBook>("book");

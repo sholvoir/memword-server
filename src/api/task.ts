@@ -3,10 +3,9 @@ import {
    jsonResponse,
    STATUS_CODE,
 } from "@sholvoir/generic/http";
-import type { ITask } from "@sholvoir/memword-common/itask";
 import { Hono } from "hono";
-import { Int32 } from "mongodb";
 import type { jwtEnv } from "../lib/env.ts";
+import type { ITask } from "../lib/itask.ts";
 import { getCollectionTask } from "../lib/mongo.ts";
 import auth from "../mid/auth.ts";
 
@@ -19,23 +18,22 @@ app.post(auth, async (c) => {
       return emptyResponse(STATUS_CODE.BadRequest);
    const collectionTask = getCollectionTask(username);
    const serverTasks = new Map<string, ITask>();
-   for await (const task of collectionTask.find())
+   for await (const task of collectionTask.find({}, { projection: { _id: 0 } }))
       serverTasks.set(task.word, task);
    for (const ctask of clientTasks) {
-      delete ctask._id;
       const stask = serverTasks.get(ctask.word);
       if (!stask) {
          await collectionTask.insertOne(ctask);
          serverTasks.set(ctask.word, ctask);
-      } else if (ctask.last > stask.last) {
+      } else if (+ctask.last > +stask.last) {
          await collectionTask.updateOne(
             { word: ctask.word },
             {
                $set: {
-                  last: new Int32(ctask.last),
-                  next: new Int32(ctask.next),
-                  level: new Int32(ctask.level),
-               } as any,
+                  last: ctask.last,
+                  next: ctask.next,
+                  level: ctask.level,
+               },
             },
          );
          serverTasks.set(ctask.word, ctask);
@@ -44,9 +42,7 @@ app.post(auth, async (c) => {
    console.log(
       `API task POST ${username} with tasks ${clientTasks.length}, return ${serverTasks.size}.`,
    );
-   return jsonResponse(
-      Array.from(serverTasks.values().map((task) => (delete task._id, task))),
-   );
+   return jsonResponse(Array.from(serverTasks.values()));
 })
    .delete(auth, async (c) => {
       const username = c.get("username");
@@ -67,18 +63,23 @@ app.post(auth, async (c) => {
       const ctask: ITask = await c.req.json();
       if (!ctask) return emptyResponse(STATUS_CODE.BadRequest);
       const collectionTask = getCollectionTask(username);
-      const stask = await collectionTask.findOne({ word: ctask.word });
+      const stask = await collectionTask.findOne(
+         { word: ctask.word },
+         { projection: { _id: 0 } },
+      );
       if (!stask) {
-         delete ctask._id;
          await collectionTask.insertOne(ctask);
-      } else if (ctask.last > stask.last) {
-         await collectionTask.updateOne({ word: ctask.word }, {
-            $set: {
-               last: new Int32(ctask.last),
-               next: new Int32(ctask.next),
-               level: new Int32(ctask.level),
+      } else if (+ctask.last > +stask.last) {
+         await collectionTask.updateOne(
+            { word: ctask.word },
+            {
+               $set: {
+                  last: ctask.last,
+                  next: ctask.next,
+                  level: ctask.level,
+               },
             },
-         } as any);
+         );
       }
       console.log(`API task PUT ${username} with task ${ctask.word}.`);
       return emptyResponse();

@@ -1,7 +1,7 @@
 import { emptyResponse, STATUS_CODE } from "@sholvoir/generic/http";
-import type { ISetting } from "@sholvoir/memword-common/isetting";
 import { Hono } from "hono";
 import type { jwtEnv } from "../lib/env.ts";
+import type { ISetting } from "../lib/isetting.ts";
 import { collectionUser } from "../lib/mongo.ts";
 import auth from "../mid/auth.ts";
 

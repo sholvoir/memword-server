@@ -1,7 +1,7 @@
 import { emptyResponse, STATUS_CODE } from "@sholvoir/generic/http";
-import { maxAge } from "@sholvoir/memword-common/common";
 import { Hono } from "hono";
 import { setCookie } from "hono/cookie";
+import { maxAge } from "../lib/common.ts";
 import { jwt } from "../lib/jwt.ts";
 import { collectionUser, newTaskCollection } from "../lib/mongo.ts";
 import { twilio } from "../lib/twilio.ts";
