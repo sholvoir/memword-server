@@ -1,6 +1,5 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { serveStatic } from "hono/deno";
 import book from "./api/book.ts";
 import apply from "./api/index.ts";
 import issue from "./api/issue.ts";
@@ -19,8 +18,6 @@ const run = async () => {
    const app = new Hono();
    app.use(cors({ origin: "*", credentials: true }));
    apply(app);
-   app.use("/about", serveStatic({ path: "./public/about.html" }));
-   app.use("/assets/*", serveStatic({ root: "./public" }));
    app.route(`${API_BASE}/otp`, otp);
    app.route(`${API_BASE}/book`, book);
    app.route(`${API_BASE}/task`, task);
