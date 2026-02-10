@@ -16,7 +16,13 @@ const API_BASE = "/api/v2";
 
 const run = async () => {
    const app = new Hono();
-   app.use(cors({ origin: "*", credentials: true }));
+   app.use(
+      cors({
+         origin: "*",
+         credentials: true,
+         allowHeaders: ["Accept", "Content-Type", "Authorization"],
+      }),
+   );
    apply(app);
    app.route(`${API_BASE}/otp`, otp);
    app.route(`${API_BASE}/book`, book);

@@ -14,6 +14,8 @@ export const studyTask = (task: ITask, level?: number): ITask => {
    const now = Date.now();
    task.last = now;
    task.next =
-      level >= 15 ? MAX_NEXT : now + Math.round(39 * level ** 3 * 1.5 ** level);
+      level >= 15
+         ? MAX_NEXT
+         : now + Math.round(39000 * level ** 3 * 1.5 ** level);
    return task;
 };
