@@ -1,8 +1,6 @@
 import { emptyResponse, STATUS_CODE } from "@sholvoir/generic/http";
 import { Hono } from "hono";
-import { setCookie } from "hono/cookie";
-import { maxAge } from "../lib/common.ts";
-import { jwt } from "../lib/jwt.ts";
+import { setAuthCookie } from "../lib/cookie.ts";
 import { collectionUser, newTaskCollection } from "../lib/mongo.ts";
 import { twilio } from "../lib/twilio.ts";
 
@@ -19,15 +17,8 @@ app.get(async (c) => {
    await collectionUser.updateOne({ name }, { $set: { confirmed: true } });
    await newTaskCollection(name);
    console.log(`API 'signin' GET ${name}`);
-   const token = await jwt.createToken(maxAge, { aud: user?.name });
-   setCookie(c, "auth", token, {
-      maxAge,
-      domain: ".micinfotech.com",
-      path: "/",
-      secure: true,
-      httpOnly: true,
-   });
-   return c.json({ auth: token });
+   await setAuthCookie(c, name);
+   return emptyResponse();
 });
 
 export default app;

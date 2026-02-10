@@ -1,7 +1,7 @@
+import { emptyResponse } from "@sholvoir/generic/http";
 import { Hono } from "hono";
-import { maxAge } from "../lib/common.ts";
+import { setAuthCookie } from "../lib/cookie.ts";
 import type { jwtEnv } from "../lib/env.ts";
-import { jwt } from "../lib/jwt.ts";
 import auth from "../mid/auth.ts";
 
 const app = new Hono<jwtEnv>();
@@ -9,7 +9,8 @@ const app = new Hono<jwtEnv>();
 app.post(auth, async (c) => {
    const name = c.get("username");
    console.log(`API renew POST ${name}`);
-   return c.json({ auth: await jwt.createToken(maxAge, { aud: name }) });
+   await setAuthCookie(c, name);
+   return emptyResponse();
 });
 
 export default app;
