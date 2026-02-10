@@ -12,10 +12,9 @@ app.get(async (c) => {
    if (!user) return emptyResponse(STATUS_CODE.NotFound);
    if (!user.phone) return emptyResponse(STATUS_CODE.FailedDependency);
    const time = Date.now();
-   if (+user.lastOtp + 5 * 60 > time)
-      return emptyResponse(STATUS_CODE.TooEarly);
+   if (user.lastOtp + 5 * 60 > time) return emptyResponse(STATUS_CODE.TooEarly);
    await twilio.createVerification(user.phone);
-   collectionUser.updateOne({ name }, { $set: { lastOtp: `${time}` } });
+   collectionUser.updateOne({ name }, { $set: { lastOtp: time } });
    console.log(`API 'otp' GET name: ${name}, phone: ${user.phone}`);
    return emptyResponse();
 });

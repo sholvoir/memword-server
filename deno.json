@@ -1,8 +1,7 @@
 {
    "lock": false,
-   "version": "0.17.2",
+   "version": "0.17.3",
    "imports": {
-      "@b-fuze/deno-dom": "jsr:@b-fuze/deno-dom@^0.1.56",
       "@sholvoir/generic": "jsr:@sholvoir/generic@^0.4.2",
       "@std/http": "jsr:@std/http@^1.0.24",
       "hono": "jsr:@hono/hono@^4.11.9",

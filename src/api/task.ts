@@ -25,7 +25,7 @@ app.post(auth, async (c) => {
       if (!stask) {
          await collectionTask.insertOne(ctask);
          serverTasks.set(ctask.word, ctask);
-      } else if (+ctask.last > +stask.last) {
+      } else if (ctask.last > stask.last) {
          await collectionTask.updateOne(
             { word: ctask.word },
             {
@@ -69,7 +69,7 @@ app.post(auth, async (c) => {
       );
       if (!stask) {
          await collectionTask.insertOne(ctask);
-      } else if (+ctask.last > +stask.last) {
+      } else if (ctask.last > stask.last) {
          await collectionTask.updateOne(
             { word: ctask.word },
             {

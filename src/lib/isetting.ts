@@ -2,7 +2,7 @@ export const settingFormat = "0.2.0";
 
 export interface ISetting {
    format: string;
-   version: string;
+   version: number;
    trans?: boolean;
    books: Array<string>;
 }
@@ -10,6 +10,6 @@ export interface ISetting {
 export const defaultSetting = () =>
    ({
       format: settingFormat,
-      version: "0",
+      version: 0,
       books: [],
    }) as ISetting;

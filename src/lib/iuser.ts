@@ -4,7 +4,7 @@ export interface IUser {
    name: string;
    phone: string;
    confirmed: boolean;
-   lastOtp: string;
+   lastOtp: number;
    setting: ISetting;
 }
 
@@ -12,6 +12,6 @@ export const newUser = (name: string, phone: string): IUser => ({
    name,
    phone,
    confirmed: false,
-   lastOtp: "0",
+   lastOtp: 0,
    setting: defaultSetting(),
 });
