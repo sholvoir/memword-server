@@ -1,6 +1,6 @@
 {
    "lock": false,
-   "version": "0.18.1",
+   "version": "0.18.2",
    "imports": {
       "@sholvoir/generic": "jsr:@sholvoir/generic@^0.4.2",
       "@std/http": "jsr:@std/http@^1.0.24",

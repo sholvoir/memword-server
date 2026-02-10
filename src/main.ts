@@ -10,6 +10,7 @@ import signin from "./api/signin.ts";
 import signout from "./api/signout.ts";
 import signup from "./api/signup.ts";
 import task from "./api/task.ts";
+import token from "./api/token.ts";
 import { connect } from "./lib/mongo.ts";
 
 const API_BASE = "/api/v2";
@@ -29,6 +30,7 @@ const run = async () => {
    app.route(`${API_BASE}/task`, task);
    app.route(`${API_BASE}/renew`, renew);
    app.route(`${API_BASE}/issue`, issue);
+   app.route(`${API_BASE}/token`, token);
    app.route(`${API_BASE}/signup`, signup);
    app.route(`${API_BASE}/signin`, signin);
    app.route(`${API_BASE}/signout`, signout);
