@@ -57,7 +57,7 @@ app.get(auth, async (c) => {
       const text = await c.req.text();
       if (!text.length) return emptyResponse(STATUS_CODE.BadRequest);
       // spell check
-      const res = await fetch(`${DICT_API_BASE}/spell-check`, {
+      const res = await fetch(`${DICT_API_BASE}/spell`, {
          method: "POST",
          body: text,
       });
