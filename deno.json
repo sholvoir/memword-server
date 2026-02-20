@@ -1,6 +1,6 @@
 {
    "lock": false,
-   "version": "0.18.3",
+   "version": "0.18.4",
    "imports": {
       "@sholvoir/generic": "jsr:@sholvoir/generic@^0.4.2",
       "@std/http": "jsr:@std/http@^1.0.24",
@@ -8,6 +8,6 @@
       "mongodb": "npm:mongodb@^7.1.0"
    },
    "tasks": {
-      "server": "deno run -A --env --watch=src/ src/main.ts"
+      "start": "deno run -A --env --watch=src/ src/main.ts"
    }
 }

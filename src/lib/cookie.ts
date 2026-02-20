@@ -9,6 +9,7 @@ export const setAuthCookie = async (c: Context, username: string) => {
       maxAge,
       secure: true,
       httpOnly: true,
+      path: "/",
       sameSite: "Lax",
    });
 };
