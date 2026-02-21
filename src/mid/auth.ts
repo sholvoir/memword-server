@@ -19,13 +19,18 @@ const auth: MiddlewareHandler<jwtEnv> = async (c, next) => {
          ?.at(1);
 
    let username = "";
+   let exp: number | undefined;
    if (token)
       try {
          const payload = await jwt.verifyToken(token);
-         if (payload) username = payload.aud as string;
-      } catch {
-         // ignore
-      }
+         if (payload) {
+            username = payload.aud as string;
+            exp = c.req.query("auth")
+               ? Date.now() / 1000 + 60 * 5
+               : payload.exp;
+         }
+      } catch {}
+   if (exp !== undefined) c.set("exp", exp);
    if (username) c.set("username", username);
    else return emptyResponse(STATUS_CODE.Unauthorized);
    await next();
