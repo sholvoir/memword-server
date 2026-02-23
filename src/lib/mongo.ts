@@ -17,6 +17,9 @@ const client = new MongoClient(Deno.env.get("MONGO_URI")!, {
 export const connect = () => client.connect();
 export const close = () => client.close();
 
+const dictDB = client.db("dict");
+export const dictIssue = dictDB.collection<{ issue: string }>("issue");
+
 const memwordDB = client.db("memword");
 
 export const collectionSys = memwordDB.collection<kv>("sys");

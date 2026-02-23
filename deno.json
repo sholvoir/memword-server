@@ -1,6 +1,6 @@
 {
    "lock": false,
-   "version": "0.18.5",
+   "version": "0.18.6",
    "lint": {
       "rules": {
          "exclude": ["no-explicit-any", "no-empty"]
@@ -8,7 +8,7 @@
    },
    "imports": {
       "@sholvoir/generic": "jsr:@sholvoir/generic@^0.4.2",
-      "hono": "jsr:@hono/hono@^4.12.0",
+      "hono": "jsr:@hono/hono@^4.12.2",
       "mongodb": "npm:mongodb@^7.1.0"
    },
    "tasks": {
