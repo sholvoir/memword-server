@@ -1,6 +1,5 @@
-export interface ITask {
+import type { ITrace } from "./itrace.ts";
+
+export interface ITask extends ITrace {
    word: string;
-   last: number;
-   next: number;
-   level: number;
 }

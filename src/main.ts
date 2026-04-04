@@ -5,6 +5,7 @@ import apply from "./api/index.ts";
 import issue from "./api/issue.ts";
 import otp from "./api/otp.ts";
 import renew from "./api/renew.ts";
+import sentence from "./api/sentence.ts";
 import setting from "./api/setting.ts";
 import signin from "./api/signin.ts";
 import signout from "./api/signout.ts";
@@ -35,6 +36,7 @@ const run = async () => {
    app.route(`${API_BASE}/signin`, signin);
    app.route(`${API_BASE}/signout`, signout);
    app.route(`${API_BASE}/setting`, setting);
+   app.route(`${API_BASE}/sentence`, sentence);
 
    await connect();
    Deno.serve(app.fetch);

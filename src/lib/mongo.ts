@@ -1,6 +1,7 @@
 import { MongoClient, ServerApiVersion } from "mongodb";
 import type { IBook } from "./ibook.ts";
 import type { IIssue } from "./iissue.ts";
+import type { ISentence } from "./isentence.ts";
 import type { ITask } from "./itask.ts";
 import type { IUser } from "./iuser.ts";
 
@@ -29,9 +30,12 @@ export const collectionBook = memwordDB.collection<IBook>("book");
 
 export const getCollectionTask = (username: string) =>
    memwordDB.collection<ITask>(`_${username}`);
+export const getCollectionST = (username: string) =>
+   memwordDB.collection<ISentence>(`_${username}_st`);
 
-export const newTaskCollection = async (username: string) => {
+export const initForNewUser = async (username: string) => {
    const taskName = `_${username}`;
+   const stName = `_${username}_st`;
    const collNames = (await memwordDB.collections()).map(
       (conn) => conn.collectionName,
    );
@@ -39,4 +43,5 @@ export const newTaskCollection = async (username: string) => {
       const collection = await memwordDB.createCollection(taskName);
       await collection.createIndex({ word: 1 }, { unique: true });
    }
+   if (!collNames.includes(stName)) await memwordDB.createCollection(stName);
 };

@@ -19,21 +19,21 @@ const DICT_API_BASE = Deno.env.get("DEBUG")
    ? "http://localhost:8080/api/v2"
    : "https://dict.micinfotech.com/api/v2";
 
-const app = new Hono<jwtEnv>();
-app.get(auth, async (c) => {
-   console.log(`API book GET`);
-   const books: Array<IBook> = [];
-   const username = c.get("username");
-   if (!username) return c.json(books);
-   for await (const book of collectionBook.find(
-      {
-         $or: [{ bid: { $regex: `^${username}/` } }, { public: true }],
-      },
-      { projection: { _id: 0 } },
-   ))
-      books.push(book);
-   return c.json(books);
-})
+export default new Hono<jwtEnv>()
+   .get(auth, async (c) => {
+      console.log(`API book GET`);
+      const books: Array<IBook> = [];
+      const username = c.get("username");
+      if (!username) return c.json(books);
+      for await (const book of collectionBook.find(
+         {
+            $or: [{ bid: { $regex: `^${username}/` } }, { public: true }],
+         },
+         { projection: { _id: 0 } },
+      ))
+         books.push(book);
+      return c.json(books);
+   })
    .delete(auth, async (c) => {
       const username = c.get("username");
       const bname = c.req.query("name");
@@ -108,5 +108,3 @@ app.get(auth, async (c) => {
       }
       return emptyResponse(STATUS_CODE.Forbidden);
    });
-
-export default app;

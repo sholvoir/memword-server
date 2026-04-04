@@ -1,7 +1,7 @@
 import { emptyResponse, STATUS_CODE } from "@sholvoir/generic/http";
 import { Hono } from "hono";
 import { setAuthCookie } from "../lib/cookie.ts";
-import { collectionUser, newTaskCollection } from "../lib/mongo.ts";
+import { collectionUser, initForNewUser } from "../lib/mongo.ts";
 import { twilio } from "../lib/twilio.ts";
 
 const app = new Hono();
@@ -15,7 +15,7 @@ app.get(async (c) => {
    if (result.status !== "approved")
       return emptyResponse(STATUS_CODE.Unauthorized);
    await collectionUser.updateOne({ name }, { $set: { confirmed: true } });
-   await newTaskCollection(name);
+   await initForNewUser(name);
    console.log(`API 'signin' GET ${name}`);
    await setAuthCookie(c, name);
    return emptyResponse();
