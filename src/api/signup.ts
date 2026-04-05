@@ -3,9 +3,7 @@ import { Hono } from "hono";
 import { newUser } from "../lib/iuser.ts";
 import { collectionUser } from "../lib/mongo.ts";
 
-const app = new Hono();
-
-app.get(async (c) => {
+export default new Hono().get(async (c) => {
    const { phone, name } = c.req.query();
    if (!phone || !name) return emptyResponse(STATUS_CODE.BadRequest);
    const user = await collectionUser.findOne({ name });
@@ -24,5 +22,3 @@ app.get(async (c) => {
    console.log(`API 'signup' GET ${name}`);
    return emptyResponse();
 });
-
-export default app;

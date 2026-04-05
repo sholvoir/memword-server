@@ -3,5 +3,4 @@ export interface IBook {
    checksum: string;
    public?: boolean;
    disc?: string;
-   content?: Iterable<string>;
 }

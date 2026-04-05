@@ -5,9 +5,7 @@ import type { ISetting } from "../lib/isetting.ts";
 import { collectionUser } from "../lib/mongo.ts";
 import auth from "../mid/auth.ts";
 
-const app = new Hono<jwtEnv>();
-
-app.post(auth, async (c) => {
+export default new Hono<jwtEnv>().post(auth, async (c) => {
    const name = c.get("username");
    const user = await collectionUser.findOne({ name });
    if (!user) return emptyResponse(STATUS_CODE.NotFound);
@@ -22,5 +20,3 @@ app.post(auth, async (c) => {
    console.log(`API setting POST ${name}`);
    return c.json(clientSetting);
 });
-
-export default app;

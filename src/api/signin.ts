@@ -4,9 +4,7 @@ import { setAuthCookie } from "../lib/cookie.ts";
 import { collectionUser, initForNewUser } from "../lib/mongo.ts";
 import { twilio } from "../lib/twilio.ts";
 
-const app = new Hono();
-
-app.get(async (c) => {
+export default new Hono().get(async (c) => {
    const { name, code } = c.req.query();
    if (!name || !code) return emptyResponse(STATUS_CODE.BadRequest);
    const user = await collectionUser.findOne({ name });
@@ -20,5 +18,3 @@ app.get(async (c) => {
    await setAuthCookie(c, name);
    return emptyResponse();
 });
-
-export default app;
