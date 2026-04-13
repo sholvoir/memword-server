@@ -11,6 +11,7 @@ import signin from "./api/signin.ts";
 import signout from "./api/signout.ts";
 import signup from "./api/signup.ts";
 import task from "./api/task.ts";
+import trans from "./api/trans.ts";
 import user from "./api/user.ts";
 import { connect } from "./lib/mongo.ts";
 
@@ -30,6 +31,7 @@ const run = async () => {
    app.route(`${API_BASE}/user`, user);
    app.route(`${API_BASE}/book`, book);
    app.route(`${API_BASE}/task`, task);
+   app.route(`${API_BASE}/trans`, trans);
    app.route(`${API_BASE}/renew`, renew);
    app.route(`${API_BASE}/issue`, issue);
    app.route(`${API_BASE}/signup`, signup);

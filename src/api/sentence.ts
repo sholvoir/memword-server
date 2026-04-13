@@ -4,7 +4,7 @@ import {
    STATUS_CODE,
 } from "@sholvoir/generic/http";
 import { Hono } from "hono";
-import { ObjectId, type OptionalId } from "mongodb";
+import { ObjectId } from "mongodb";
 import type { jwtEnv } from "../lib/env.ts";
 import type { ISentence } from "../lib/isentence.ts";
 import { getCollectionST } from "../lib/mongo.ts";
@@ -43,22 +43,20 @@ export default new Hono<jwtEnv>()
          return emptyResponse(STATUS_CODE.BadRequest);
       //
       const collectionST = getCollectionST(username);
-      const serverSTs = new Map<string, OptionalId<ISentence>>();
+      const serverSTs = new Map<string, ISentence>();
       for await (const st of collectionST.find(
          {},
-         { projection: { word: 0 } },
+         { projection: { _id: 0, trans: 0 } },
       )) {
-         st.id = st._id.toString();
-         serverSTs.set(st.id, st);
+         serverSTs.set(st.sentence, st);
       }
       //
       for (const cst of clientSTs) {
-         if (!cst.id) continue;
-         const sst = serverSTs.get(cst.id);
+         const sst = serverSTs.get(cst.sentence);
          if (!sst) continue;
          if (cst.last > sst.last) {
             const r = await collectionST.updateOne(
-               { _id: sst._id },
+               { sentence: cst.sentence },
                {
                   $set: {
                      last: cst.last,
@@ -69,20 +67,24 @@ export default new Hono<jwtEnv>()
             );
             if (!r.acknowledged)
                return emptyResponse(STATUS_CODE.InternalServerError);
-            serverSTs.set(cst.id, cst);
+            serverSTs.set(cst.sentence, cst);
          }
       }
       console.log(
          `API task POST ${username} with tasks ${clientSTs.length}, return ${serverSTs.size}.`,
       );
-      return jsonResponse(
-         Array.from(
-            serverSTs.values().map((st) => {
-               const { _id, ...ste } = st;
-               return ste;
-            }),
-         ),
-      );
+      return jsonResponse(serverSTs.values());
+   })
+   .put(auth, async (c) => {
+      const username = c.get("username");
+      const st: ISentence = await c.req.json();
+      if (!st) return emptyResponse(STATUS_CODE.BadRequest);
+      const collectionST = getCollectionST(username);
+      const r = await collectionST.replaceOne({ sentence: st.sentence }, st);
+      if (!r.matchedCount) return emptyResponse(STATUS_CODE.NotFound);
+      if (!r.modifiedCount || !r.acknowledged)
+         return emptyResponse(STATUS_CODE.InternalServerError);
+      return emptyResponse();
    })
    .get(":id", auth, async (c) => {
       const username = c.get("username");
@@ -95,22 +97,6 @@ export default new Hono<jwtEnv>()
       );
       if (!st) return emptyResponse(STATUS_CODE.NotFound);
       return jsonResponse(st);
-   })
-   .put(":id", auth, async (c) => {
-      const username = c.get("username");
-      const id = c.req.param("id");
-      if (!id) return emptyResponse(STATUS_CODE.BadRequest);
-      const cst: ISentence = await c.req.json();
-      if (!cst) return emptyResponse(STATUS_CODE.BadRequest);
-      const collectionST = getCollectionST(username);
-      const r = await collectionST.updateOne(
-         { _id: new ObjectId(id) },
-         { $set: { last: cst.last, next: cst.next, level: cst.level } },
-      );
-      if (!r.matchedCount) return emptyResponse(STATUS_CODE.NotFound);
-      if (!r.modifiedCount || !r.acknowledged)
-         return emptyResponse(STATUS_CODE.InternalServerError);
-      return emptyResponse();
    })
    .delete(":id", auth, async (c) => {
       const username = c.get("username");

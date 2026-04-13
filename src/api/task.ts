@@ -12,13 +12,14 @@ import auth from "../mid/auth.ts";
 export default new Hono<jwtEnv>()
    .post(auth, async (c) => {
       const username = c.get("username");
+      const sync = c.req.query("sync");
       const clientTasks: Array<ITask> = await c.req.json();
       if (!clientTasks || !Array.isArray(clientTasks))
          return emptyResponse(STATUS_CODE.BadRequest);
       const collectionTask = getCollectionTask(username);
       const serverTasks = new Map<string, ITask>();
       for await (const task of collectionTask.find(
-         {},
+         sync ? {} : { word: { $in: clientTasks.map((t) => t.word) } },
          { projection: { _id: 0 } },
       ))
          serverTasks.set(task.word, task);
@@ -42,9 +43,13 @@ export default new Hono<jwtEnv>()
          }
       }
       console.log(
-         `API task POST ${username} with tasks ${clientTasks.length}, return ${serverTasks.size}.`,
+         `API task POST ${username} with tasks ${clientTasks.length}, ${
+            sync ? `return ${serverTasks.size}` : "Without Sync"
+         }.`,
       );
-      return jsonResponse(Array.from(serverTasks.values()));
+      return sync
+         ? jsonResponse(Array.from(serverTasks.values()))
+         : emptyResponse();
    })
    .delete(auth, async (c) => {
       const username = c.get("username");
@@ -59,30 +64,4 @@ export default new Hono<jwtEnv>()
          `API task DELETE ${username} with tasks ${deleteResult.deletedCount}.`,
       );
       return jsonResponse(deleteResult);
-   })
-   .put(auth, async (c) => {
-      const username = c.get("username");
-      const ctask: ITask = await c.req.json();
-      if (!ctask) return emptyResponse(STATUS_CODE.BadRequest);
-      const collectionTask = getCollectionTask(username);
-      const stask = await collectionTask.findOne(
-         { word: ctask.word },
-         { projection: { _id: 0 } },
-      );
-      if (!stask) {
-         await collectionTask.insertOne(ctask);
-      } else if (ctask.last > stask.last) {
-         await collectionTask.updateOne(
-            { word: ctask.word },
-            {
-               $set: {
-                  last: ctask.last,
-                  next: ctask.next,
-                  level: ctask.level,
-               },
-            },
-         );
-      }
-      console.log(`API task PUT ${username} with task ${ctask.word}.`);
-      return emptyResponse();
    });

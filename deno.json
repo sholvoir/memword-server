@@ -1,6 +1,6 @@
 {
    "lock": false,
-   "version": "0.19.1",
+   "version": "0.19.2",
    "lint": {
       "rules": {
          "exclude": ["no-explicit-any", "no-empty"]
@@ -8,6 +8,7 @@
    },
    "imports": {
       "@sholvoir/generic": "jsr:@sholvoir/generic@^0.4.2",
+      "@std/crypto": "jsr:@std/crypto@^1.0.5",
       "hono": "jsr:@hono/hono@^4.12.10",
       "mongodb": "npm:mongodb@^7.1.1"
    },

@@ -43,5 +43,8 @@ export const initForNewUser = async (username: string) => {
       const collection = await memwordDB.createCollection(taskName);
       await collection.createIndex({ word: 1 }, { unique: true });
    }
-   if (!collNames.includes(stName)) await memwordDB.createCollection(stName);
+   if (!collNames.includes(stName)) {
+      const collection = await memwordDB.createCollection(stName);
+      await collection.createIndex({ sentence: 1 }, { unique: true });
+   }
 };
