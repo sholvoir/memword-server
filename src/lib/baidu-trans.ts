@@ -7,7 +7,7 @@ const baseUrl = "https://fanyi-api.baidu.com/api/trans/vip/translate";
 const from = "en";
 const to = "zh";
 
-const translate = async (q: string): Promise<string | null> => {
+const translate = async (q: string): Promise<string | undefined> => {
    const salt = Date.now().toString();
    const str1 = appid + q + salt + key;
    const sign = new Uint8Array(
@@ -16,7 +16,7 @@ const translate = async (q: string): Promise<string | null> => {
    const result = await getJson<any>(
       url(baseUrl, { q, from, to, appid, salt, sign }),
    );
-   if (result.error_code) return null;
+   if (result.error_code) return undefined;
    return result.trans_result[0].dst;
 };
 

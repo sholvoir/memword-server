@@ -26,10 +26,12 @@ export default new Hono<jwtEnv>()
       for (const ctask of clientTasks) {
          const stask = serverTasks.get(ctask.word);
          if (!stask) {
-            await collectionTask.insertOne(ctask);
+            const r = await collectionTask.insertOne(ctask);
+            if (!r.acknowledged)
+               return emptyResponse(STATUS_CODE.InternalServerError);
             serverTasks.set(ctask.word, ctask);
          } else if (ctask.last > stask.last) {
-            await collectionTask.updateOne(
+            const r = await collectionTask.updateOne(
                { word: ctask.word },
                {
                   $set: {
@@ -39,11 +41,13 @@ export default new Hono<jwtEnv>()
                   },
                },
             );
+            if (!r.acknowledged)
+               return emptyResponse(STATUS_CODE.InternalServerError);
             serverTasks.set(ctask.word, ctask);
          }
       }
       console.log(
-         `API task POST ${username} with tasks ${clientTasks.length}, ${
+         `API task POST ${username} upload ${clientTasks.length}, ${
             sync ? `return ${serverTasks.size}` : "Without Sync"
          }.`,
       );
@@ -57,11 +61,20 @@ export default new Hono<jwtEnv>()
       if (!words || !Array.isArray(words))
          return emptyResponse(STATUS_CODE.BadRequest);
       const collectionTask = getCollectionTask(username);
-      const deleteResult = await collectionTask.deleteMany({
-         word: { $in: words },
-      });
-      console.log(
-         `API task DELETE ${username} with tasks ${deleteResult.deletedCount}.`,
-      );
-      return jsonResponse(deleteResult);
+      const r = await collectionTask.deleteMany({ word: { $in: words } });
+      if (!r.acknowledged) {
+         console.log(
+            `API task DELETE from "${username}", database write error.`,
+         );
+         return emptyResponse(STATUS_CODE.InternalServerError);
+      }
+      if (!r.deletedCount) {
+         console.log(`API task DELETE from ${username}, not found.`);
+         return emptyResponse(STATUS_CODE.NotFound);
+      } else {
+         console.log(
+            `API task DELETE ${r.deletedCount} records from ${username}.`,
+         );
+         return emptyResponse();
+      }
    });
