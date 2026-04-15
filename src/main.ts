@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import pkg from "../deno.json" with { type: "json" };
 import book from "./api/book.ts";
 import apply from "./api/index.ts";
 import issue from "./api/issue.ts";
@@ -27,6 +28,7 @@ const run = async () => {
       }),
    );
    apply(app);
+   app.get(`${API_BASE}/version`, (c) => c.text(pkg.version));
    app.route(`${API_BASE}/otp`, otp);
    app.route(`${API_BASE}/user`, user);
    app.route(`${API_BASE}/book`, book);
