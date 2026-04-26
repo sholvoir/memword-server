@@ -3,7 +3,6 @@ import { deleteCookie } from "hono/cookie";
 
 export default new Hono().get((c) => {
    deleteCookie(c, "auth", {
-      domain: ".micinfotech.com",
       path: "/",
       secure: true,
       httpOnly: true,
