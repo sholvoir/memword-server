@@ -1,6 +1,6 @@
 {
    "lock": false,
-   "version": "0.24.1",
+   "version": "0.25.0",
    "lint": {
       "rules": {
          "exclude": ["no-explicit-any", "no-empty"]
@@ -9,9 +9,9 @@
    "imports": {
       "@sholvoir/dict-server/": "../dict-server/src/",
       "@sholvoir/generic": "jsr:@sholvoir/generic@^0.4.5",
-      "@std/crypto": "jsr:@std/crypto@^1.0.5",
-      "hono": "jsr:@hono/hono@^4.12.14",
-      "mongodb": "npm:mongodb@^7.1.1"
+      "@std/crypto": "jsr:@std/crypto@^1.1.0",
+      "hono": "jsr:@hono/hono@^4.12.15",
+      "mongodb": "npm:mongodb@^7.2.0"
    },
    "tasks": {
       "build": "deno bundle --check --minify src/main.ts >> dest/main.js",

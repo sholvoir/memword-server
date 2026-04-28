@@ -76,7 +76,6 @@ export default new Hono<jwtEnv>()
          const book = await collectionBook.findOne({ bid });
          if (book) {
             if (!disc) disc = book.disc;
-            book.public = !!isPublic;
             const text = await s3.getTextObject(`${bid}.txt`);
             for (let line of text.split("\n"))
                if ((line = line.trim())) words.add(line);
@@ -93,18 +92,17 @@ export default new Hono<jwtEnv>()
       console.log(`API book POST ${bid}, successed.`);
       return c.json({ bid, checksum, disc, public: !!isPublic });
    })
-   .get(":u/:b", auth, async (c) => {
+   .get(":uname/:bname", auth, async (c) => {
       const username = c.get("username");
-      const { u: uname, b: bname } = c.req.param();
+      const { uname, bname } = c.req.param();
+      if (!uname || !bname) return emptyResponse(STATUS_CODE.BadRequest);
       const bid = `${uname}/${bname}`;
       console.log(`API book:${bid} GET`);
       const book = await collectionBook.findOne({ bid: `${bid}` });
       if (!book) return emptyResponse(STATUS_CODE.NotFound);
       if (username === uname || book.public) {
          const text = await s3.getTextObject(`${book.bid}.txt`);
-         return new Response(text, {
-            headers: { checksum: `${book.checksum}` },
-         });
+         return new Response(text);
       }
       return emptyResponse(STATUS_CODE.Forbidden);
    });

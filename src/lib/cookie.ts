@@ -1,5 +1,5 @@
 import type { Context } from "hono";
-import { setCookie } from "hono/cookie";
+import { deleteCookie, setCookie } from "hono/cookie";
 import { maxAge } from "./common.ts";
 import { jwt } from "./jwt.ts";
 
@@ -13,3 +13,10 @@ export const setAuthCookie = async (c: Context, username: string) => {
       sameSite: "Lax",
    });
 };
+
+export const clearAuthCookie = (c: Context) =>
+   deleteCookie(c, "auth", {
+      path: "/",
+      secure: true,
+      httpOnly: true,
+   });

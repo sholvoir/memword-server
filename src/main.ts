@@ -2,24 +2,20 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import pkg from "../deno.json" with { type: "json" };
 import book from "./api/book.ts";
-import apply from "./api/index.ts";
+import statik from "./api/index.ts";
 import issue from "./api/issue.ts";
-import otp from "./api/otp.ts";
-import renew from "./api/renew.ts";
 import sentence from "./api/sentence.ts";
 import setting from "./api/setting.ts";
-import signin from "./api/signin.ts";
-import signout from "./api/signout.ts";
-import signup from "./api/signup.ts";
+import sign from "./api/sign.ts";
 import task from "./api/task.ts";
 import trans from "./api/trans.ts";
-import user from "./api/user.ts";
+import type { jwtEnv } from "./lib/env.ts";
 import { connect } from "./lib/mongo.ts";
 
 const API_BASE = "/api/v2";
 
 const run = async () => {
-   const app = new Hono();
+   const app = new Hono<jwtEnv>();
    app.use(
       cors({
          origin: "*",
@@ -27,18 +23,14 @@ const run = async () => {
          allowHeaders: ["Accept", "Content-Type", "Authorization"],
       }),
    );
-   apply(app);
+   statik(app);
+   sign(app);
    app.get(`${API_BASE}/version`, (c) => c.text(pkg.version));
-   app.route(`${API_BASE}/otp`, otp);
-   app.route(`${API_BASE}/user`, user);
+
    app.route(`${API_BASE}/book`, book);
    app.route(`${API_BASE}/task`, task);
    app.route(`${API_BASE}/trans`, trans);
-   app.route(`${API_BASE}/renew`, renew);
    app.route(`${API_BASE}/issue`, issue);
-   app.route(`${API_BASE}/signup`, signup);
-   app.route(`${API_BASE}/signin`, signin);
-   app.route(`${API_BASE}/signout`, signout);
    app.route(`${API_BASE}/setting`, setting);
    app.route(`${API_BASE}/sentence`, sentence);
 
