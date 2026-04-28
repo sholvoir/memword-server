@@ -1,6 +1,6 @@
 {
    "lock": false,
-   "version": "0.25.0",
+   "version": "0.25.1",
    "lint": {
       "rules": {
          "exclude": ["no-explicit-any", "no-empty"]
@@ -11,7 +11,7 @@
       "@sholvoir/generic": "jsr:@sholvoir/generic@^0.4.5",
       "@std/crypto": "jsr:@std/crypto@^1.1.0",
       "hono": "jsr:@hono/hono@^4.12.15",
-      "mongodb": "npm:mongodb@^7.2.0"
+      "mongodb": "npm:mongodb@7.1.1"
    },
    "tasks": {
       "build": "deno bundle --check --minify src/main.ts >> dest/main.js",
