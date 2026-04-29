@@ -54,13 +54,13 @@ const sign = (app: Hono<jwtEnv>) => {
       await initForNewUser(name);
       console.log(`API 'signin' GET ${name}`);
       await setAuthCookie(c, name);
-      return c.json({ name, expired: Date.now() + maxAge });
+      return c.json({ name, expired: Date.now() + maxAge * 1000 });
    });
    app.get("/renew", auth, async (c) => {
       const name = c.get("username");
       console.log(`API renew GET ${name}`);
       await setAuthCookie(c, name);
-      return c.json({ name, expired: Date.now() + maxAge });
+      return c.json({ name, expired: Date.now() + maxAge * 1000 });
    });
    app.get("/signout", auth, (c) => {
       clearAuthCookie(c);
