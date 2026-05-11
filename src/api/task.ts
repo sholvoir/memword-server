@@ -2,6 +2,7 @@ import { emptyResponse, STATUS_CODE } from "@sholvoir/generic/http";
 import { Hono } from "hono";
 import type { jwtEnv } from "../lib/env.ts";
 import type { ITask } from "../lib/itask.ts";
+import { toTrace } from "../lib/itrace.ts";
 import { getCollectionTask } from "../lib/mongo.ts";
 import auth from "../mid/auth.ts";
 
@@ -39,13 +40,7 @@ export default new Hono<jwtEnv>()
          } else if (ctask.last > stask.last) {
             const r = await collectionTask.updateOne(
                { word: ctask.word },
-               {
-                  $set: {
-                     last: ctask.last,
-                     next: ctask.next,
-                     level: ctask.level,
-                  },
-               },
+               { $set: toTrace(ctask) },
             );
             if (!r.acknowledged)
                return emptyResponse(STATUS_CODE.InternalServerError);
