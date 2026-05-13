@@ -1,8 +1,8 @@
 import { MongoClient, ServerApiVersion } from "mongodb";
 import type { IBook } from "./ibook.ts";
-import type { IIssue } from "./iissue.ts";
 import type { ISentence } from "./isentence.ts";
 import type { ITask } from "./itask.ts";
+import type { ITrace } from "./itrace.ts";
 import type { IUser } from "./iuser.ts";
 
 type kv = { key: string; value: string };
@@ -25,13 +25,16 @@ const memwordDB = client.db("memword");
 
 export const collectionSys = memwordDB.collection<kv>("sys");
 export const collectionUser = memwordDB.collection<IUser>("user");
-export const collectionIssue = memwordDB.collection<IIssue>("issue");
 export const collectionBook = memwordDB.collection<IBook>("book");
+export const collectionIssue = memwordDB.collection<{
+   reporter: string;
+   issue: string;
+}>("issue");
 
 export const getCollectionTask = (username: string) =>
    memwordDB.collection<ITask>(`_${username}`);
-export const getCollectionST = (username: string) =>
-   memwordDB.collection<ISentence>(`_${username}_st`);
+export const getCollectionSTI = (username: string) =>
+   memwordDB.collection<ISentence & ITrace>(`_${username}_st`);
 
 export const initForNewUser = async (username: string) => {
    const taskName = `_${username}`;

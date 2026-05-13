@@ -1,6 +1,5 @@
-import type { ITrace } from "./itrace.ts";
-
-export interface ISentence extends ITrace {
+export interface ISentence {
+   id?: string;
    sentence: string;
-   trans?: string;
+   trans: string;
 }

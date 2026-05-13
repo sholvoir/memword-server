@@ -47,7 +47,7 @@ export default new Hono<jwtEnv>()
       console.log(`API book DELETE ${username}/${bname}, successed.`);
       return emptyResponse();
    })
-   .on(["POST", "PUT"], "/", auth, async (c) => {
+   .on(["PATCH", "PUT"], "/", auth, async (c) => {
       const username = c.get("username");
       const bname = c.req.query("name");
       let disc = c.req.query("disc");

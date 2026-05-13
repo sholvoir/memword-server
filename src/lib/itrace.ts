@@ -1,4 +1,5 @@
 export interface ITrace {
+   id?: string;
    last: number;
    next: number;
    level: number;

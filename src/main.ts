@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import pkg from "../deno.json" with { type: "json" };
 import book from "./api/book.ts";
+import dictIssue from "./api/dict-issue.ts";
 import statik from "./api/index.ts";
 import issue from "./api/issue.ts";
 import sentence from "./api/sentence.ts";
@@ -14,7 +15,7 @@ import { connect } from "./lib/mongo.ts";
 
 const API_BASE = "/api/v2";
 
-const run = async () => {
+const run = () => {
    const app = new Hono<jwtEnv>();
    app.use(
       cors({
@@ -33,9 +34,9 @@ const run = async () => {
    app.route(`${API_BASE}/issue`, issue);
    app.route(`${API_BASE}/setting`, setting);
    app.route(`${API_BASE}/sentence`, sentence);
+   app.route(`${API_BASE}/dict-issue`, dictIssue);
 
-   await connect();
-   Deno.serve(app.fetch);
+   connect().then(() => Deno.serve(app.fetch));
 };
 
 if (import.meta.main) run();
