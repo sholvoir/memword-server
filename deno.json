@@ -1,6 +1,6 @@
 {
    "lock": false,
-   "version": "0.27.1",
+   "version": "0.27.2",
    "lint": {
       "rules": {
          "exclude": ["no-explicit-any", "no-empty"]
@@ -8,11 +8,12 @@
    },
    "imports": {
       "@sholvoir/dict-server/": "../dict-server/src/",
-      "@sholvoir/generic": "jsr:@sholvoir/generic@^0.4.5",
+      "@sholvoir/generic": "jsr:@sholvoir/generic@^0.4.8",
       "@std/crypto": "jsr:@std/crypto@^1.1.0",
-      "hono": "jsr:@hono/hono@^4.12.22",
-      "mongodb": "npm:mongodb@7.1.1"
+      "hono": "jsr:@hono/hono@^4.13.2",
+      "mongodb": "npm:mongodb@7.5.0"
    },
+   "minimumDependencyAge": "0",
    "tasks": {
       "build": "deno bundle --check --minify src/main.ts >> dest/main.js",
       "start": "deno run -A --env --watch=src/ src/main.ts"
