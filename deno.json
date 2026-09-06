@@ -1,6 +1,6 @@
 {
    "lock": false,
-   "version": "0.27.2",
+   "version": "0.27.3",
    "lint": {
       "rules": {
          "exclude": ["no-explicit-any", "no-empty"]
@@ -10,8 +10,8 @@
       "@sholvoir/dict-server/": "../dict-server/src/",
       "@sholvoir/generic": "jsr:@sholvoir/generic@^0.4.8",
       "@std/crypto": "jsr:@std/crypto@^1.1.0",
-      "hono": "jsr:@hono/hono@^4.13.2",
-      "mongodb": "npm:mongodb@7.5.0"
+      "hono": "jsr:@hono/hono@^4.13.7",
+      "mongodb": "npm:mongodb@^7.6.0"
    },
    "minimumDependencyAge": "0",
    "tasks": {

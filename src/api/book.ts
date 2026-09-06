@@ -72,7 +72,7 @@ export default new Hono<jwtEnv>()
       const words = new Set<string>();
       for (let line of text.split("\n"))
          if ((line = line.trim())) words.add(line);
-      if (c.req.method === "POST") {
+      if (c.req.method !== "PUT") {
          const book = await collectionBook.findOne({ bid });
          if (book) {
             if (!disc) disc = book.disc;
