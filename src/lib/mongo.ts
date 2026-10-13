@@ -1,8 +1,7 @@
 import { MongoClient, ServerApiVersion } from "mongodb";
 import type { IBook } from "./ibook.ts";
-import type { ISentence } from "./isentence.ts";
+import type { ICard } from "./icard.ts";
 import type { ITask } from "./itask.ts";
-import type { ITrace } from "./itrace.ts";
 import type { IUser } from "./iuser.ts";
 
 type kv = { key: string; value: string };
@@ -33,8 +32,8 @@ export const collectionIssue = memwordDB.collection<{
 
 export const getCollectionTask = (username: string) =>
    memwordDB.collection<ITask>(`_${username}`);
-export const getCollectionSTI = (username: string) =>
-   memwordDB.collection<ISentence & ITrace>(`_${username}_st`);
+export const getCollectionCard = (username: string) =>
+   memwordDB.collection<ICard>(`_${username}_card`);
 
 export const initForNewUser = async (username: string) => {
    const taskName = `_${username}`;
