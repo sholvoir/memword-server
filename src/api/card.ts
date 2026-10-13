@@ -99,5 +99,5 @@ export default new Hono<jwtEnv>()
          { projection: { card: 1, _id: 0 } },
       );
       if (!card) return emptyResponse(STATUS_CODE.NotFound);
-      return c.json(card);
+      return c.text(card.card);
    });
