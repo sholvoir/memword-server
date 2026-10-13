@@ -20,7 +20,7 @@ export default new Hono<jwtEnv>()
          delete (card as any)._id;
          cards.push(card);
       }
-      console.log(`API sentence GET ${username} return ${cards.length}.`);
+      console.log(`API card GET ${username} return ${cards.length}.`);
       return c.json(cards);
    })
    .patch(auth, async (c) => {
@@ -38,7 +38,7 @@ export default new Hono<jwtEnv>()
          if (!r.acknowledged)
             return emptyResponse(STATUS_CODE.InternalServerError);
       }
-      console.log(`API sentence PATCH ${username} upload ${traces.length}.`);
+      console.log(`API card PATCH ${username} upload ${traces.length}.`);
       return emptyResponse();
    })
    .delete(auth, async (c) => {
@@ -52,39 +52,39 @@ export default new Hono<jwtEnv>()
       });
       if (!r.acknowledged) {
          console.log(
-            `API sentence DELETE from "${username}", database write error.`,
+            `API card DELETE from "${username}", database write error.`,
          );
          return emptyResponse(STATUS_CODE.InternalServerError);
       }
       if (!r.deletedCount) {
-         console.log(`API sentence DELETE from "${username}", not found.`);
+         console.log(`API card DELETE from "${username}", not found.`);
          return emptyResponse(STATUS_CODE.NotFound);
       } else {
          console.log(
-            `API sentence DELETE  from "${username}", "${ids.length}/${r.deletedCount}" successed.`,
+            `API card DELETE  from "${username}", "${ids.length}/${r.deletedCount}" successed.`,
          );
          return emptyResponse();
       }
    })
    .post(auth, async (c) => {
       const username = c.get("username");
-      const st = await c.req.json();
-      if (!st) return emptyResponse(STATUS_CODE.BadRequest);
+      const card = await c.req.json();
+      if (!card) return emptyResponse(STATUS_CODE.BadRequest);
       const collectionST = getCollectionCard(username);
-      if (st._id) delete st._id;
-      if (st.id) delete st.id;
+      if (card._id) delete card._id;
+      if (card.id) delete card.id;
       try {
-         const r = await collectionST.insertOne(st);
+         const r = await collectionST.insertOne(card);
          if (!r.acknowledged) {
             console.log(
-               `API sentence POST from "${username}", database write error.`,
+               `API card POST from "${username}", database write error.`,
             );
             return emptyResponse(STATUS_CODE.InternalServerError);
          }
-         console.log(`API sentence POST from "${username}", successed.`);
+         console.log(`API card POST from "${username}", successed.`);
          return c.text(r.insertedId.toString());
       } catch (err: any) {
-         console.error(`API sentence POST. error: ${err}`);
+         console.error(`API card POST. error: ${err}`);
          if (err.code === 11000) return emptyResponse(STATUS_CODE.Conflict);
          return emptyResponse(STATUS_CODE.InternalServerError);
       }
@@ -93,11 +93,11 @@ export default new Hono<jwtEnv>()
       const username = c.get("username");
       const id = c.req.param("id");
       if (!id) return emptyResponse(STATUS_CODE.BadRequest);
-      const collectionST = getCollectionCard(username);
-      const st = await collectionST.findOne(
+      const collectionCard = getCollectionCard(username);
+      const card = await collectionCard.findOne(
          { _id: new ObjectId(id) },
          { projection: { card: 1, _id: 0 } },
       );
-      if (!st) return emptyResponse(STATUS_CODE.NotFound);
-      return c.json(st);
+      if (!card) return emptyResponse(STATUS_CODE.NotFound);
+      return c.json(card);
    });

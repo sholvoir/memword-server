@@ -47,6 +47,6 @@ export const initForNewUser = async (username: string) => {
    }
    if (!collNames.includes(stName)) {
       const collection = await memwordDB.createCollection(stName);
-      await collection.createIndex({ sentence: 1 }, { unique: true });
+      await collection.createIndex({ card: 1 }, { unique: true });
    }
 };
