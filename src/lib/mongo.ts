@@ -1,3 +1,4 @@
+import type { IIssue } from "@sholvoir/dict-server/lib/iissue.ts";
 import { MongoClient, ServerApiVersion } from "mongodb";
 import type { IBook } from "./ibook.ts";
 import type { ICard } from "./icard.ts";
@@ -18,17 +19,14 @@ export const connect = () => client.connect();
 export const close = () => client.close();
 
 const dictDB = client.db("dict");
-export const dictIssue = dictDB.collection<{ issue: string }>("issue");
+export const dictIssue = dictDB.collection<IIssue>("issue");
 
 const memwordDB = client.db("memword");
 
 export const collectionSys = memwordDB.collection<kv>("sys");
 export const collectionUser = memwordDB.collection<IUser>("user");
 export const collectionBook = memwordDB.collection<IBook>("book");
-export const collectionIssue = memwordDB.collection<{
-   reporter: string;
-   issue: string;
-}>("issue");
+export const collectionIssue = memwordDB.collection<IIssue>("issue");
 
 export const getCollectionTask = (username: string) =>
    memwordDB.collection<ITask>(`_${username}`);

@@ -2,8 +2,7 @@ import { emptyResponse, STATUS_CODE } from "@sholvoir/generic/http";
 import { Hono } from "hono";
 import { ObjectId } from "mongodb";
 import type { jwtEnv } from "../lib/env.ts";
-import type { ICard } from "../lib/icard.ts";
-import { type ITrace, toTrace } from "../lib/itrace.ts";
+import type { ITrace } from "../lib/itrace.ts";
 import { getCollectionCard } from "../lib/mongo.ts";
 import auth from "../mid/auth.ts";
 
@@ -11,14 +10,12 @@ export default new Hono<jwtEnv>()
    .get(auth, async (c) => {
       const username = c.get("username");
       const collectionCard = getCollectionCard(username);
-      const cards: Array<ICard> = [];
-      for await (const card of collectionCard.find(
+      const cards = [];
+      for await (const { _id, ...card } of collectionCard.find(
          {},
          { projection: { _id: 1, last: 1, next: 1, level: 1 } },
       )) {
-         card.id = card._id.toString();
-         delete (card as any)._id;
-         cards.push(card);
+         cards.push({ id: _id.toString(), ...card });
       }
       console.log(`API card GET ${username} return ${cards.length}.`);
       return c.json(cards);
@@ -29,11 +26,11 @@ export default new Hono<jwtEnv>()
       if (!traces || !Array.isArray(traces))
          return emptyResponse(STATUS_CODE.BadRequest);
       const collectionCard = getCollectionCard(username);
-      for (const trace of traces) {
-         if (!trace.id) continue;
+      for (const { id, last, next, level } of traces) {
+         if (!id) continue;
          const r = await collectionCard.updateOne(
-            { _id: new ObjectId(trace.id), last: { $lt: trace.last } },
-            { $set: toTrace(trace) },
+            { _id: new ObjectId(id), last: { $lt: last } },
+            { $set: { last, next, level } },
          );
          if (!r.acknowledged)
             return emptyResponse(STATUS_CODE.InternalServerError);
@@ -70,9 +67,9 @@ export default new Hono<jwtEnv>()
       const username = c.get("username");
       const card = await c.req.json();
       if (!card) return emptyResponse(STATUS_CODE.BadRequest);
-      const collectionST = getCollectionCard(username);
       if (card._id) delete card._id;
       if (card.id) delete card.id;
+      const collectionST = getCollectionCard(username);
       try {
          const r = await collectionST.insertOne(card);
          if (!r.acknowledged) {

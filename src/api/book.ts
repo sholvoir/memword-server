@@ -39,12 +39,11 @@ export default new Hono<jwtEnv>()
       const bname = c.req.query("name");
       if (!bname) return emptyResponse(STATUS_CODE.BadRequest);
       const bid = `${username}/${bname}`;
-      const book = await collectionBook.findOne({ bid });
-      if (!book) return emptyResponse(STATUS_CODE.NotFound);
       const result = await collectionBook.deleteOne({ bid });
       if (!result.acknowledged) return c.json(result, STATUS_CODE.Conflict);
+      if (!result.deletedCount) return emptyResponse(STATUS_CODE.NotFound);
       await s3.deleteObject(`${bid}.txt`);
-      console.log(`API book DELETE ${username}/${bname}, successed.`);
+      console.log(`API book DELETE ${bid}, successed.`);
       return emptyResponse();
    })
    .on(["PATCH", "PUT"], "/", auth, async (c) => {
@@ -100,9 +99,8 @@ export default new Hono<jwtEnv>()
       console.log(`API book:${bid} GET`);
       const book = await collectionBook.findOne({ bid: `${bid}` });
       if (!book) return emptyResponse(STATUS_CODE.NotFound);
-      if (username === uname || book.public) {
-         const text = await s3.getTextObject(`${book.bid}.txt`);
-         return new Response(text);
-      }
-      return emptyResponse(STATUS_CODE.Forbidden);
+      if (username !== uname && !book.public)
+         return emptyResponse(STATUS_CODE.Forbidden);
+      const text = await s3.getTextObject(`${book.bid}.txt`);
+      return new Response(text);
    });

@@ -1,9 +1,8 @@
-export const settingFormat = "0.2.0";
+export const settingFormat = "0.2.1";
 
 export interface ISetting {
    format: string;
    version: number;
-   trans?: boolean;
    books: Array<string>;
 }
 

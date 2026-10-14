@@ -5,10 +5,11 @@ import { dictIssue } from "../lib/mongo.ts";
 import auth from "../mid/auth.ts";
 
 export default new Hono<jwtEnv>().post(auth, async (c) => {
+   const reporter = c.get("username");
    const issue = await c.req.text();
    if (!issue) return emptyResponse(STATUS_CODE.BadRequest);
    try {
-      const result = await dictIssue.insertOne({ issue });
+      const result = await dictIssue.insertOne({ issue, reporter });
       if (!result.acknowledged) {
          console.log(`API dict-issue POST ${issue} database write error`);
          return emptyResponse(STATUS_CODE.InternalServerError);

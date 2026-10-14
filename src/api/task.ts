@@ -1,8 +1,8 @@
 import { emptyResponse, STATUS_CODE } from "@sholvoir/generic/http";
 import { Hono } from "hono";
+import { ObjectId } from "mongodb";
 import type { jwtEnv } from "../lib/env.ts";
-import type { ITask } from "../lib/itask.ts";
-import { toTrace } from "../lib/itrace.ts";
+import type { ITrace } from "../lib/itrace.ts";
 import { getCollectionTask } from "../lib/mongo.ts";
 import auth from "../mid/auth.ts";
 
@@ -11,51 +11,38 @@ export default new Hono<jwtEnv>()
       const username = c.get("username");
       const collectionTask = getCollectionTask(username);
       const tasks = [];
-      for await (const task of collectionTask.find(
-         {},
-         { projection: { _id: 0 } },
-      ))
-         tasks.push(task);
+      for await (const { _id, ...rest } of collectionTask.find())
+         tasks.push({ id: _id.toString(), ...rest });
       console.log(`API task GET ${username} return ${tasks.length}.`);
       return c.json(tasks);
    })
    .patch(auth, async (c) => {
       const username = c.get("username");
-      const clientTasks: Array<ITask> = await c.req.json();
-      if (!clientTasks || !Array.isArray(clientTasks))
+      const traces: Array<ITrace & { id: string }> = await c.req.json();
+      if (!traces || !Array.isArray(traces))
          return emptyResponse(STATUS_CODE.BadRequest);
       const collectionTask = getCollectionTask(username);
-      const serverTasks = new Map<string, ITask>();
-      for await (const task of collectionTask.find(
-         { word: { $in: clientTasks.map((t) => t.word) } },
-         { projection: { _id: 0 } },
-      ))
-         serverTasks.set(task.word, task);
-      for (const ctask of clientTasks) {
-         const stask = serverTasks.get(ctask.word);
-         if (!stask) {
-            const r = await collectionTask.insertOne(ctask);
-            if (!r.acknowledged)
-               return emptyResponse(STATUS_CODE.InternalServerError);
-         } else if (ctask.last > stask.last) {
-            const r = await collectionTask.updateOne(
-               { word: ctask.word },
-               { $set: toTrace(ctask) },
-            );
-            if (!r.acknowledged)
-               return emptyResponse(STATUS_CODE.InternalServerError);
-         }
+      for (const { id, last, next, level } of traces) {
+         if (!id) continue;
+         const r = await collectionTask.updateOne(
+            { _id: new ObjectId(id), last: { $lt: last } },
+            { $set: { last, next, level } },
+         );
+         if (!r.acknowledged)
+            return emptyResponse(STATUS_CODE.InternalServerError);
       }
-      console.log(`API task PATCH ${username} upload ${clientTasks.length}.`);
+      console.log(`API task PATCH ${username} upload ${traces.length}.`);
       return emptyResponse();
    })
    .delete(auth, async (c) => {
       const username = c.get("username");
-      const words: Array<string> = await c.req.json();
-      if (!words || !Array.isArray(words))
+      const ids: Array<string> = await c.req.json();
+      if (!ids || !Array.isArray(ids))
          return emptyResponse(STATUS_CODE.BadRequest);
       const collectionTask = getCollectionTask(username);
-      const r = await collectionTask.deleteMany({ word: { $in: words } });
+      const r = await collectionTask.deleteMany({
+         _id: { $in: ids.map((id) => new ObjectId(id)) },
+      });
       if (!r.acknowledged) {
          console.log(
             `API task DELETE from "${username}", database write error.`,
@@ -70,5 +57,28 @@ export default new Hono<jwtEnv>()
             `API task DELETE ${r.deletedCount} records from ${username}.`,
          );
          return emptyResponse();
+      }
+   })
+   .post(auth, async (c) => {
+      const username = c.get("username");
+      const task = await c.req.json();
+      if (!task) return emptyResponse(STATUS_CODE.BadRequest);
+      if (task._id) delete task._id;
+      if (task.id) delete task.id;
+      const collectionTask = getCollectionTask(username);
+      try {
+         const r = await collectionTask.insertOne(task);
+         if (!r.acknowledged) {
+            console.log(
+               `API task POST from "${username}", database write error.`,
+            );
+            return emptyResponse(STATUS_CODE.InternalServerError);
+         }
+         console.log(`API task POST from "${username}", successed.`);
+         return c.text(r.insertedId.toString());
+      } catch (err: any) {
+         console.error(`API card POST. error: ${err}`);
+         if (err.code === 11000) return emptyResponse(STATUS_CODE.Conflict);
+         return emptyResponse(STATUS_CODE.InternalServerError);
       }
    });

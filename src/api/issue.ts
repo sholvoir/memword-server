@@ -15,7 +15,7 @@ export default new Hono<jwtEnv>()
    })
    .post(auth, async (c) => {
       const reporter = c.get("username");
-      const issue = (await c.req.json()).issue;
+      const issue = await c.req.text();
       if (!issue) return emptyResponse(STATUS_CODE.BadRequest);
       try {
          const result = await collectionIssue.insertOne({ reporter, issue });
@@ -28,15 +28,15 @@ export default new Hono<jwtEnv>()
             console.log(
                `API issue POST ${reporter} ${issue} successed. id: ${result.insertedId}`,
             );
-            return c.text(`${result.insertedId}`, STATUS_CODE.Created);
+            return c.text(result.insertedId.toString(), STATUS_CODE.Created);
          }
       } catch (err: any) {
          console.error(`API issue POST. error: ${err}`);
          return emptyResponse(STATUS_CODE.InternalServerError);
       }
    })
-   .delete(auth, admin, async (c) => {
-      const id = c.req.query("id");
+   .delete(":id", auth, admin, async (c) => {
+      const id = c.req.param("id");
       if (!id) return emptyResponse(STATUS_CODE.BadRequest);
       const result = await collectionIssue.deleteOne({ _id: new ObjectId(id) });
       if (!result.acknowledged) {

@@ -11,7 +11,7 @@ export default new Hono<jwtEnv>().post(auth, async (c) => {
    if (!user) return emptyResponse(STATUS_CODE.NotFound);
    const serverSetting = user.setting;
    const clientSetting = (await c.req.json()) as ISetting;
-   if (serverSetting.version >= clientSetting.version)
+   if (!clientSetting || serverSetting.version >= clientSetting.version)
       return c.json(serverSetting);
    await collectionUser.updateOne(
       { _id: user._id },
