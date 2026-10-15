@@ -2,7 +2,8 @@ import { emptyResponse, STATUS_CODE } from "@sholvoir/generic/http";
 import { Hono } from "hono";
 import { ObjectId } from "mongodb";
 import type { jwtEnv } from "../lib/env.ts";
-import type { ITrace } from "../lib/itrace.ts";
+import type { ICard } from "../lib/icard.ts";
+import type { IIDTrace } from "../lib/itrace.ts";
 import { getCollectionCard } from "../lib/mongo.ts";
 import auth from "../mid/auth.ts";
 
@@ -10,19 +11,19 @@ export default new Hono<jwtEnv>()
    .get(auth, async (c) => {
       const username = c.get("username");
       const collectionCard = getCollectionCard(username);
-      const cards = [];
+      const traces: Array<IIDTrace> = [];
       for await (const { _id, ...card } of collectionCard.find(
          {},
          { projection: { _id: 1, last: 1, next: 1, level: 1 } },
       )) {
-         cards.push({ id: _id.toString(), ...card });
+         traces.push({ id: _id.toString(), ...card });
       }
-      console.log(`API card GET ${username} return ${cards.length}.`);
-      return c.json(cards);
+      console.log(`API card GET ${username} return ${traces.length}.`);
+      return c.json(traces);
    })
    .patch(auth, async (c) => {
       const username = c.get("username");
-      const traces: Array<ITrace & { id: string }> = await c.req.json();
+      const traces: Array<IIDTrace> = await c.req.json();
       if (!traces || !Array.isArray(traces))
          return emptyResponse(STATUS_CODE.BadRequest);
       const collectionCard = getCollectionCard(username);
@@ -65,10 +66,8 @@ export default new Hono<jwtEnv>()
    })
    .post(auth, async (c) => {
       const username = c.get("username");
-      const card = await c.req.json();
+      const card: ICard = await c.req.json();
       if (!card) return emptyResponse(STATUS_CODE.BadRequest);
-      if (card._id) delete card._id;
-      if (card.id) delete card.id;
       const collectionST = getCollectionCard(username);
       try {
          const r = await collectionST.insertOne(card);

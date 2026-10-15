@@ -2,7 +2,8 @@ import { emptyResponse, STATUS_CODE } from "@sholvoir/generic/http";
 import { Hono } from "hono";
 import { ObjectId } from "mongodb";
 import type { jwtEnv } from "../lib/env.ts";
-import type { ITrace } from "../lib/itrace.ts";
+import type { IIDTask } from "../lib/itask.ts";
+import type { IIDTrace } from "../lib/itrace.ts";
 import { getCollectionTask } from "../lib/mongo.ts";
 import auth from "../mid/auth.ts";
 
@@ -10,7 +11,7 @@ export default new Hono<jwtEnv>()
    .get(auth, async (c) => {
       const username = c.get("username");
       const collectionTask = getCollectionTask(username);
-      const tasks = [];
+      const tasks: Array<IIDTask> = [];
       for await (const { _id, ...rest } of collectionTask.find())
          tasks.push({ id: _id.toString(), ...rest });
       console.log(`API task GET ${username} return ${tasks.length}.`);
@@ -18,7 +19,7 @@ export default new Hono<jwtEnv>()
    })
    .patch(auth, async (c) => {
       const username = c.get("username");
-      const traces: Array<ITrace & { id: string }> = await c.req.json();
+      const traces: Array<IIDTrace> = await c.req.json();
       if (!traces || !Array.isArray(traces))
          return emptyResponse(STATUS_CODE.BadRequest);
       const collectionTask = getCollectionTask(username);
