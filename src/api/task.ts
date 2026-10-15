@@ -2,7 +2,7 @@ import { emptyResponse, STATUS_CODE } from "@sholvoir/generic/http";
 import { Hono } from "hono";
 import { ObjectId } from "mongodb";
 import type { jwtEnv } from "../lib/env.ts";
-import type { IIDTask } from "../lib/itask.ts";
+import type { IIDTask, ITask } from "../lib/itask.ts";
 import type { IIDTrace } from "../lib/itrace.ts";
 import { getCollectionTask } from "../lib/mongo.ts";
 import auth from "../mid/auth.ts";
@@ -62,10 +62,8 @@ export default new Hono<jwtEnv>()
    })
    .post(auth, async (c) => {
       const username = c.get("username");
-      const task = await c.req.json();
+      const task: ITask = await c.req.json();
       if (!task) return emptyResponse(STATUS_CODE.BadRequest);
-      if (task._id) delete task._id;
-      if (task.id) delete task.id;
       const collectionTask = getCollectionTask(username);
       try {
          const r = await collectionTask.insertOne(task);
