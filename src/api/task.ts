@@ -1,9 +1,7 @@
 import { emptyResponse, STATUS_CODE } from "@sholvoir/generic/http";
 import { Hono } from "hono";
-import { ObjectId } from "mongodb";
 import type { jwtEnv } from "../lib/env.ts";
-import type { IIDTask, ITask } from "../lib/itask.ts";
-import type { IIDTrace } from "../lib/itrace.ts";
+import type { ITask } from "../lib/itask.ts";
 import { getCollectionTask } from "../lib/mongo.ts";
 import auth from "../mid/auth.ts";
 
@@ -11,23 +9,23 @@ export default new Hono<jwtEnv>()
    .get(auth, async (c) => {
       const username = c.get("username");
       const collectionTask = getCollectionTask(username);
-      const tasks: Array<IIDTask> = [];
-      for await (const { _id, ...rest } of collectionTask.find())
-         tasks.push({ id: _id.toString(), ...rest });
+      const tasks: Array<ITask> = [];
+      for await (const { _id, ...task } of collectionTask.find())
+         tasks.push(task);
       console.log(`API task GET ${username} return ${tasks.length}.`);
       return c.json(tasks);
    })
    .patch(auth, async (c) => {
       const username = c.get("username");
-      const traces: Array<IIDTrace> = await c.req.json();
+      const traces: Array<ITask> = await c.req.json();
       if (!traces || !Array.isArray(traces))
          return emptyResponse(STATUS_CODE.BadRequest);
       const collectionTask = getCollectionTask(username);
-      for (const { id, last, next, level } of traces) {
-         if (!id) continue;
+      for (const { word, last, next, level } of traces) {
          const r = await collectionTask.updateOne(
-            { _id: new ObjectId(id), last: { $lt: last } },
+            { word, last: { $lt: last } },
             { $set: { last, next, level } },
+            { upsert: true },
          );
          if (!r.acknowledged)
             return emptyResponse(STATUS_CODE.InternalServerError);
@@ -37,13 +35,11 @@ export default new Hono<jwtEnv>()
    })
    .delete(auth, async (c) => {
       const username = c.get("username");
-      const ids: Array<string> = await c.req.json();
-      if (!ids || !Array.isArray(ids))
+      const words: Array<string> = await c.req.json();
+      if (!words || !Array.isArray(words))
          return emptyResponse(STATUS_CODE.BadRequest);
       const collectionTask = getCollectionTask(username);
-      const r = await collectionTask.deleteMany({
-         _id: { $in: ids.map((id) => new ObjectId(id)) },
-      });
+      const r = await collectionTask.deleteMany({ word: { $in: words } });
       if (!r.acknowledged) {
          console.log(
             `API task DELETE from "${username}", database write error.`,
@@ -58,26 +54,5 @@ export default new Hono<jwtEnv>()
             `API task DELETE ${r.deletedCount} records from ${username}.`,
          );
          return emptyResponse();
-      }
-   })
-   .post(auth, async (c) => {
-      const username = c.get("username");
-      const task: ITask = await c.req.json();
-      if (!task) return emptyResponse(STATUS_CODE.BadRequest);
-      const collectionTask = getCollectionTask(username);
-      try {
-         const r = await collectionTask.insertOne(task);
-         if (!r.acknowledged) {
-            console.log(
-               `API task POST from "${username}", database write error.`,
-            );
-            return emptyResponse(STATUS_CODE.InternalServerError);
-         }
-         console.log(`API task POST from "${username}", successed.`);
-         return c.text(r.insertedId.toString());
-      } catch (err: any) {
-         console.error(`API card POST. error: ${err}`);
-         if (err.code === 11000) return emptyResponse(STATUS_CODE.Conflict);
-         return emptyResponse(STATUS_CODE.InternalServerError);
       }
    });
