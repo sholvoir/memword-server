@@ -1,4 +1,5 @@
-import type { IIDIssue } from "@sholvoir/dict-server/lib/iissue.ts";
+import type { WithID } from "@sholvoir/dict-server/lib/common.ts";
+import type { IIssue } from "@sholvoir/dict-server/lib/iissue.ts";
 import { emptyResponse, STATUS_CODE } from "@sholvoir/generic/http";
 import { Hono } from "hono";
 import { ObjectId } from "mongodb";
@@ -9,9 +10,9 @@ import auth from "../mid/auth.ts";
 
 export default new Hono<jwtEnv>()
    .get(auth, admin, async (c) => {
-      const issues: Array<IIDIssue> = [];
-      for await (const { _id, ...rest } of collectionIssue.find())
-         issues.push({ id: _id.toString(), ...rest });
+      const issues: Array<WithID<IIssue>> = [];
+      for await (const { _id, ...issue } of collectionIssue.find())
+         issues.push({ id: _id.toString(), ...issue });
       console.log(`API issue GET successed`);
       return c.json(issues);
    })

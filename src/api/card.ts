@@ -1,9 +1,10 @@
+import type { WithID } from "@sholvoir/dict-server/lib/common.ts";
 import { emptyResponse, STATUS_CODE } from "@sholvoir/generic/http";
 import { Hono } from "hono";
 import { ObjectId } from "mongodb";
 import type { jwtEnv } from "../lib/env.ts";
 import type { ICard } from "../lib/icard.ts";
-import type { IIDTrace } from "../lib/itrace.ts";
+import type { ITrace } from "../lib/itrace.ts";
 import { getCollectionCard } from "../lib/mongo.ts";
 import auth from "../mid/auth.ts";
 
@@ -11,7 +12,7 @@ export default new Hono<jwtEnv>()
    .get(auth, async (c) => {
       const username = c.get("username");
       const collectionCard = getCollectionCard(username);
-      const traces: Array<IIDTrace> = [];
+      const traces: Array<WithID<ITrace>> = [];
       for await (const { _id, ...card } of collectionCard.find(
          {},
          { projection: { _id: 1, last: 1, next: 1, level: 1 } },
@@ -23,7 +24,7 @@ export default new Hono<jwtEnv>()
    })
    .patch(auth, async (c) => {
       const username = c.get("username");
-      const traces: Array<IIDTrace> = await c.req.json();
+      const traces: Array<WithID<ITrace>> = await c.req.json();
       if (!traces || !Array.isArray(traces))
          return emptyResponse(STATUS_CODE.BadRequest);
       const collectionCard = getCollectionCard(username);
