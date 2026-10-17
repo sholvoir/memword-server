@@ -13,11 +13,11 @@ export default new Hono<jwtEnv>()
       const username = c.get("username");
       const collectionCard = getCollectionCard(username);
       const traces: Array<WithID<ITrace>> = [];
-      for await (const { _id, ...card } of collectionCard.find(
+      for await (const { _id, ...page } of collectionCard.find(
          {},
          { projection: { _id: 1, last: 1, next: 1, level: 1 } },
       )) {
-         traces.push({ id: _id.toString(), ...card });
+         traces.push({ id: _id.toString(), ...page });
       }
       console.log(`API card GET ${username} return ${traces.length}.`);
       return c.json(traces);
@@ -96,5 +96,5 @@ export default new Hono<jwtEnv>()
          { projection: { card: 1, _id: 0 } },
       );
       if (!card) return emptyResponse(STATUS_CODE.NotFound);
-      return c.text(card.card);
+      return c.text(card.page);
    });

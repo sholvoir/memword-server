@@ -1,51 +1,50 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.3.11/schema.json",
-	"vcs": {
-		"enabled": false,
-		"clientKind": "git",
-		"useIgnoreFile": false
-	},
-	"files": {
-		"ignoreUnknown": false
-	},
-	"formatter": {
-		"enabled": true,
-		"indentStyle": "space",
-		"indentWidth": 3
-	},
-	"linter": {
-		"enabled": true,
-		"rules": {
-			"recommended": true,
-			"a11y": {
-				"noStaticElementInteractions": "off",
-				"useKeyWithClickEvents": "off",
-				"useMediaCaption": "off"
-			},
-			"complexity": {
-				"noCommaOperator": "off"
-			},
-			"suspicious": {
-				"noAssignInExpressions": "off",
-				"noExplicitAny": "off",
-				"useIterableCallbackReturn": "off"
-			},
-			"style": {
-				"noNonNullAssertion": "off"
-			}
-		}
-	},
-	"javascript": {
-		"formatter": {
-			"quoteStyle": "double"
-		}
-	},
-	"assist": {
-		"enabled": true,
-		"actions": {
-			"source": {
-				"organizeImports": "on"
-			}
-		}
-	}
+   "$schema": "https://biomejs.dev/schemas/2.5.15/schema.json",
+   "vcs": {
+      "enabled": false,
+      "clientKind": "git",
+      "useIgnoreFile": false
+   },
+   "files": {
+      "ignoreUnknown": false
+   },
+   "formatter": {
+      "enabled": true,
+      "indentStyle": "space",
+      "indentWidth": 3
+   },
+   "linter": {
+      "rules": {
+         "preset": "recommended",
+         "a11y": {
+            "noStaticElementInteractions": "off",
+            "useKeyWithClickEvents": "off",
+            "useMediaCaption": "off"
+         },
+         "complexity": {
+            "noCommaOperator": "off"
+         },
+         "suspicious": {
+            "noAssignInExpressions": "off",
+            "noExplicitAny": "off",
+            "useIterableCallbackReturn": "off"
+         },
+         "style": {
+            "noNonNullAssertion": "off"
+         }
+      }
+   },
+   "javascript": {
+      "formatter": {
+         "quoteStyle": "double"
+      }
+   },
+   "assist": {
+      "enabled": true,
+      "actions": {
+         "source": {
+            "organizeImports": "on"
+         }
+      }
+   }
 }
