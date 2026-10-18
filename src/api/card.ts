@@ -93,7 +93,7 @@ export default new Hono<jwtEnv>()
       const collectionCard = getCollectionCard(username);
       const card = await collectionCard.findOne(
          { _id: new ObjectId(id) },
-         { projection: { card: 1, _id: 0 } },
+         { projection: { page: 1, _id: 0 } },
       );
       if (!card) return emptyResponse(STATUS_CODE.NotFound);
       return c.text(card.page);

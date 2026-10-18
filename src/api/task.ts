@@ -22,13 +22,24 @@ export default new Hono<jwtEnv>()
          return emptyResponse(STATUS_CODE.BadRequest);
       const collectionTask = getCollectionTask(username);
       for (const { word, last, next, level } of traces) {
-         const r = await collectionTask.updateOne(
-            { word, last: { $lt: last } },
-            { $set: { last, next, level } },
-            { upsert: true },
-         );
-         if (!r.acknowledged)
-            return emptyResponse(STATUS_CODE.InternalServerError);
+         const scard = await collectionTask.findOne({ word });
+         if (!scard) {
+            const r = await collectionTask.insertOne({
+               word,
+               last,
+               next,
+               level,
+            });
+            if (!r.acknowledged)
+               return emptyResponse(STATUS_CODE.InternalServerError);
+         } else if (last > scard.last) {
+            const r = await collectionTask.updateOne(
+               { word, last: { $lt: last } },
+               { $set: { last, next, level } },
+            );
+            if (!r.acknowledged)
+               return emptyResponse(STATUS_CODE.InternalServerError);
+         }
       }
       console.log(`API task PATCH ${username} upload ${traces.length}.`);
       return emptyResponse();
