@@ -12,6 +12,7 @@ import task from "./api/task.ts";
 import trans from "./api/trans.ts";
 import type { jwtEnv } from "./lib/env.ts";
 import { connect } from "./lib/mongo.ts";
+import cache from "./mid/cache.ts";
 
 const API_BASE = "/api/v2";
 
@@ -24,6 +25,7 @@ const run = () => {
          allowHeaders: ["Accept", "Content-Type", "Authorization"],
       }),
    );
+   app.use(cache);
    statik(app);
    sign(app);
    app.get(`${API_BASE}/version`, (c) => c.text(pkg.version));
