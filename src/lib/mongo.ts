@@ -1,5 +1,6 @@
 import type { IIssue } from "@sholvoir/dict-server/lib/iissue.ts";
 import { MongoClient, ServerApiVersion } from "mongodb";
+// import type { IAchieve } from "./iachieve.ts";
 import type { IBook } from "./ibook.ts";
 import type { ICard } from "./icard.ts";
 import type { ITask } from "./itask.ts";
@@ -30,21 +31,28 @@ export const collectionIssue = memwordDB.collection<IIssue>("issue");
 
 export const getCollectionTask = (username: string) =>
    memwordDB.collection<ITask>(`_${username}`);
+// export const getCollectionAchieve = (username: string) =>
+//    memwordDB.collection<IAchieve>(`_${username}_achieve`);
 export const getCollectionCard = (username: string) =>
    memwordDB.collection<ICard>(`_${username}_card`);
 
 export const initForNewUser = async (username: string) => {
    const taskName = `_${username}`;
-   const stName = `_${username}_st`;
-   const collNames = (await memwordDB.collections()).map(
+   // const achieveName = `_${username}_achieve`;
+   const cardName = `_${username}_card`;
+   const collectionNames = (await memwordDB.collections()).map(
       (conn) => conn.collectionName,
    );
-   if (!collNames.includes(taskName)) {
+   if (!collectionNames.includes(taskName)) {
       const collection = await memwordDB.createCollection(taskName);
       await collection.createIndex({ word: 1 }, { unique: true });
    }
-   if (!collNames.includes(stName)) {
-      const collection = await memwordDB.createCollection(stName);
-      await collection.createIndex({ card: 1 }, { unique: true });
+   // if (!collectionNames.includes(achieveName)) {
+   //    const collection = await memwordDB.createCollection(achieveName);
+   //    await collection.createIndex({ word: 1 }, { unique: true });
+   // }
+   if (!collectionNames.includes(cardName)) {
+      const collection = await memwordDB.createCollection(cardName);
+      await collection.createIndex({ page: 1 }, { unique: true });
    }
 };
