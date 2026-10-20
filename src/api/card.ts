@@ -95,6 +95,6 @@ export default new Hono<jwtEnv>()
          { _id: new ObjectId(id) },
          { projection: { page: 1, _id: 0 } },
       );
-      if (!card) return emptyResponse(STATUS_CODE.NotFound);
+      if (!card?.page) return emptyResponse(STATUS_CODE.NotFound);
       return c.text(card.page);
    });

@@ -1,13 +1,13 @@
 {
    "lock": false,
-   "version": "0.28.12",
+   "version": "0.29.0",
    "lint": {
       "rules": {
          "exclude": ["no-explicit-any", "no-empty"]
       }
    },
    "imports": {
-      "@sholvoir/dict-server/": "https://raw.githubusercontent.com/sholvoir/dict-server/d963b5ee1f43d3c998b585b91632c83d1dc5578d/src/",
+      "@sholvoir/dict-server/": "https://raw.githubusercontent.com/sholvoir/dict-server/8202a7a6748a84f6f9c04a63f8c8f5315210f499/src/",
       "@sholvoir/generic": "jsr:@sholvoir/generic@^0.4.9",
       "@std/crypto": "jsr:@std/crypto@^1.1.0",
       "hono": "jsr:@hono/hono@^4.13.13",
