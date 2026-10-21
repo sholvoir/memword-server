@@ -24,15 +24,15 @@ export default new Hono<jwtEnv>()
    })
    .patch(auth, async (c) => {
       const username = c.get("username");
-      const traces: Array<WithID<ITrace>> = await c.req.json();
+      const traces: Array<WithID<ICard>> = await c.req.json();
       if (!traces || !Array.isArray(traces))
          return emptyResponse(STATUS_CODE.BadRequest);
       const collectionCard = getCollectionCard(username);
-      for (const { id, last, next, level } of traces) {
+      for (const { id, ...card } of traces) {
          if (!id) continue;
          const r = await collectionCard.updateOne(
-            { _id: new ObjectId(id), last: { $lt: last } },
-            { $set: { last, next, level } },
+            { _id: new ObjectId(id), last: { $lt: card.last } },
+            { $set: card },
          );
          if (!r.acknowledged)
             return emptyResponse(STATUS_CODE.InternalServerError);
